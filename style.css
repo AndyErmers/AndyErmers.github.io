@@ -63,6 +63,7 @@
   padding: 12px 14px;
   text-align: left;
   border-bottom: 1px solid #eee;
+  vertical-align: middle;
 }
 
 .table th {
@@ -99,4 +100,19 @@
 
 .btn-ghost {
   background: #f3f4f6;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px 16px;
+  margin: 20px 0;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  text-align: left;
+}
+
+.muted { color: #667085; margin-top: -6px; }
+
+.table-compact th, .table-compact td {
+  padding: 10px 12px;
 }
