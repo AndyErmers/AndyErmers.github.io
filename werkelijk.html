@@ -10,9 +10,21 @@
   <main class="container">
     <h1>Werkelijke voorraad</h1>
 
-    <ul id="voorraad-lijst" class="lijst">
-      <li>Laden...</li>
-    </ul>
+<table class="table">
+<thead>
+  <tr>
+    <th>Product</th>
+    <th>Hoeveelheid</th>
+    <th>Datum</th>
+    <th>Acties</th>
+  </tr>
+</thead>
+
+  <tbody id="voorraad-body">
+    <tr><td colspan="3">Laden...</td></tr>
+  </tbody>
+</table>
+
 
     <h2>Nieuwe voorraad toevoegen</h2>
 
@@ -28,7 +40,7 @@
         id="hoeveelheid"
         placeholder="Hoeveelheid (bijv. 2)"
         step="0.01"
-        min="0.01"
+        min="0"
         required
       />
       <button type="submit">Toevoegen</button>

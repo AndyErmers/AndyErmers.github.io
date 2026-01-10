@@ -2,6 +2,8 @@
   list-style: none;
   padding: 0;
   margin: 20px 0 40px;
+  display: grid;
+  gap: 10px;
 }
 
 .lijst li {
@@ -20,8 +22,9 @@
 }
 
 .form input {
-  padding: 10px;
-  font-size: 16px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  outline: none;
 }
 
 .form button {
@@ -30,4 +33,70 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.voorraad-item {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  font-size: 16px;
+}
+
+.form input:focus {
+  border-color: #2563eb;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0 40px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+
+.table th,
+.table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.table th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table td input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #d0d5dd;
+  background: white;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.btn-primary {
+  border: none;
+  background: #2563eb;
+  color: white;
+}
+
+.btn-ghost {
+  background: #f3f4f6;
 }
