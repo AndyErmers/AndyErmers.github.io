@@ -49,13 +49,13 @@ function seedFromString(str) {
   return h >>> 0;
 }
 
-// Laatste stand per product (data moet op Datum DESC staan)
+// (Mag blijven staan; wordt niet gebruikt maar is niet schadelijk)
 function latestPerProduct(rows) {
   const map = new Map();
   for (const r of rows) {
     const key = (r.product ?? "").trim().toLowerCase();
     if (!key) continue;
-    if (!map.has(key)) map.set(key, r); // eerste is nieuwste
+    if (!map.has(key)) map.set(key, r);
   }
   return Array.from(map.values());
 }
@@ -66,7 +66,7 @@ function pickDailyCountListProductKeys(allProductKeysSorted, percentage = 0.2) {
   const nPick = Math.max(1, Math.ceil(nTotal * percentage));
 
   const rand = mulberry32(seedFromString(todayKey() + "|tellijst"));
-  const arr = [...allProductKeysSorted]; // strings
+  const arr = [...allProductKeysSorted];
 
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
@@ -75,7 +75,6 @@ function pickDailyCountListProductKeys(allProductKeysSorted, percentage = 0.2) {
 
   return arr.slice(0, nPick);
 }
-
 
 function renderTellijstFromKeys(productKeys, latestMap) {
   if (!tellijstBody) return;
@@ -89,8 +88,6 @@ function renderTellijstFromKeys(productKeys, latestMap) {
 
   for (const key of productKeys) {
     const latest = latestMap.get(key);
-
-    // Als product niet meer bestaat in de voorraadset, skip
     if (!latest) continue;
 
     const productName = latest.product ?? "";
@@ -147,7 +144,6 @@ function renderTellijstFromKeys(productKeys, latestMap) {
         }
 
         markProductGeteld(productName);
-
         await laadVoorraad();
       });
     }
@@ -159,8 +155,6 @@ function renderTellijstFromKeys(productKeys, latestMap) {
     tellijstBody.appendChild(tr);
   }
 }
-
-
 
 function renderVoorraadTabel(latest) {
   tbody.innerHTML = "";
@@ -242,32 +236,32 @@ function renderVoorraadTabel(latest) {
           return;
         }
 
-        const updateData = {};
         const productChanged = newProduct !== oldProduct;
         const qtyChanged = newQty !== oldQty;
 
-        // product wijzigen: alleen product
-        if (productChanged) updateData.product = newProduct;
-
-        // hoeveelheid wijzigen: hoeveelheid + datum naar nu
-        if (qtyChanged) {
-          updateData.Hoeveelheid = newQty;
-          updateData.Datum = new Date().toISOString();
-        }
-
-        if (Object.keys(updateData).length === 0) {
+        // niets veranderd
+        if (!productChanged && !qtyChanged) {
           btnCancel.click();
           return;
         }
 
-        const { error: updateError } = await supabase
-          .from("Realiteit")
-          .update(updateData)
-          .eq("id", item.id);
+        // Datum alleen naar NU als hoeveelheid verandert
+        const datumToSave = qtyChanged
+          ? new Date().toISOString()
+          : (item.Datum ?? new Date().toISOString());
 
-        if (updateError) {
-          alert("Fout bij bewerken: " + updateError.message);
-          console.error("Supabase update error:", updateError);
+        // ✅ append-only: nieuwe regel toevoegen i.p.v. UPDATE
+        const { error: insertError } = await supabase
+          .from("Realiteit")
+          .insert({
+            product: newProduct,
+            Hoeveelheid: newQty,
+            Datum: datumToSave,
+          });
+
+        if (insertError) {
+          alert("Fout bij opslaan wijziging: " + insertError.message);
+          console.error("Supabase insert error:", insertError);
           return;
         }
 
@@ -332,7 +326,7 @@ function normalizeProduct(p) {
 }
 
 function latestMapByProduct(rowsSortedByDatumDesc) {
-  const map = new Map(); // key: normalized product -> latest row
+  const map = new Map();
   for (const r of rowsSortedByDatumDesc) {
     const key = normalizeProduct(r.product);
     if (!key) continue;
@@ -341,9 +335,7 @@ function latestMapByProduct(rowsSortedByDatumDesc) {
   return map;
 }
 
-
 async function laadVoorraad() {
-  // laad both tables
   tbody.innerHTML = `<tr><td colspan="4">Laden...</td></tr>`;
   if (tellijstBody) tellijstBody.innerHTML = `<tr><td colspan="4">Laden...</td></tr>`;
 
@@ -360,28 +352,22 @@ async function laadVoorraad() {
     return;
   }
 
-    const latestMap = latestMapByProduct(data ?? []);
-  const allKeysSorted = Array.from(latestMap.keys()).sort(); // stabiel
+  const latestMap = latestMapByProduct(data ?? []);
+  const allKeysSorted = Array.from(latestMap.keys()).sort();
 
-  // ✅ vaste tellijst per dag
   let dailyKeys = getDailyTellijst();
-
-  // als nog geen tellijst vandaag: genereer & bewaar
   if (!dailyKeys) {
     dailyKeys = pickDailyCountListProductKeys(allKeysSorted, 0.2);
     setDailyTellijst(dailyKeys);
   }
 
-  // als producten zijn veranderd: filter keys die niet meer bestaan
-  dailyKeys = dailyKeys.filter(k => latestMap.has(k));
+  dailyKeys = dailyKeys.filter((k) => latestMap.has(k));
   setDailyTellijst(dailyKeys);
 
   renderTellijstFromKeys(dailyKeys, latestMap);
 
-  // Voorraad tabel = latest stand per product (maak array van map values)
   const latestArr = Array.from(latestMap.values());
   renderVoorraadTabel(latestArr);
-
 }
 
 // Toevoegen via formulier (hoeveelheid mag 0)
