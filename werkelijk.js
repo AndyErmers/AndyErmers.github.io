@@ -60,15 +60,14 @@ function latestPerProduct(rows) {
   return Array.from(map.values());
 }
 
-function pickDailyCountList(productsLatest, percentage = 0.2) {
-  const nTotal = productsLatest.length;
+function pickDailyCountListProductKeys(allProductKeysSorted, percentage = 0.2) {
+  const nTotal = allProductKeysSorted.length;
   if (nTotal === 0) return [];
   const nPick = Math.max(1, Math.ceil(nTotal * percentage));
 
   const rand = mulberry32(seedFromString(todayKey() + "|tellijst"));
-  const arr = [...productsLatest];
+  const arr = [...allProductKeysSorted]; // strings
 
-  // shuffle
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -77,36 +76,43 @@ function pickDailyCountList(productsLatest, percentage = 0.2) {
   return arr.slice(0, nPick);
 }
 
-function renderTellijst(items) {
+
+function renderTellijstFromKeys(productKeys, latestMap) {
   if (!tellijstBody) return;
 
-  if (!items || items.length === 0) {
+  if (!productKeys || productKeys.length === 0) {
     tellijstBody.innerHTML = `<tr><td colspan="4">Geen producten om te tellen</td></tr>`;
     return;
   }
 
   tellijstBody.innerHTML = "";
 
-  for (const item of items) {
+  for (const key of productKeys) {
+    const latest = latestMap.get(key);
+
+    // Als product niet meer bestaat in de voorraadset, skip
+    if (!latest) continue;
+
+    const productName = latest.product ?? "";
+    const huidig = latest.Hoeveelheid ?? 0;
+
     const tr = document.createElement("tr");
 
     const tdP = document.createElement("td");
-    tdP.textContent = item.product ?? "";
+    tdP.textContent = productName;
 
     const tdHuidig = document.createElement("td");
-    tdHuidig.textContent = String(item.Hoeveelheid ?? 0);
+    tdHuidig.textContent = String(huidig);
 
     const tdGeteld = document.createElement("td");
     const tdActie = document.createElement("td");
 
-    const alreadyCounted = isProductGeteld(item.product ?? "");
+    const alreadyCounted = isProductGeteld(productName);
 
     if (alreadyCounted) {
       tdGeteld.textContent = "✔";
       tdActie.textContent = "Geteld";
       tdActie.classList.add("geteld");
-      tdActie.style.color = "#16a34a";
-      tdActie.style.fontWeight = "600";
     } else {
       const input = document.createElement("input");
       input.type = "number";
@@ -114,7 +120,6 @@ function renderTellijst(items) {
       input.min = "0";
       input.placeholder = "0";
       input.style.width = "110px";
-
       tdGeteld.appendChild(input);
 
       const btn = document.createElement("button");
@@ -124,14 +129,13 @@ function renderTellijst(items) {
 
       btn.addEventListener("click", async () => {
         const val = Number(input.value);
-
         if (!Number.isFinite(val) || val < 0) {
           alert("Voer een hoeveelheid in van 0 of hoger.");
           return;
         }
 
         const { error } = await supabase.from("Realiteit").insert({
-          product: item.product,
+          product: productName,
           Hoeveelheid: val,
           Datum: new Date().toISOString(),
         });
@@ -142,8 +146,7 @@ function renderTellijst(items) {
           return;
         }
 
-        // 👉 markeer als geteld
-        markProductGeteld(item.product);
+        markProductGeteld(productName);
 
         await laadVoorraad();
       });
@@ -156,6 +159,7 @@ function renderTellijst(items) {
     tellijstBody.appendChild(tr);
   }
 }
+
 
 
 function renderVoorraadTabel(latest) {
@@ -307,6 +311,36 @@ function isProductGeteld(product) {
   return getGeteldeProductenVandaag().includes(product.toLowerCase());
 }
 
+function dailyTellijstKey() {
+  return `daily-tellijst-${todayKey()}`;
+}
+
+function getDailyTellijst() {
+  try {
+    return JSON.parse(localStorage.getItem(dailyTellijstKey())) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function setDailyTellijst(list) {
+  localStorage.setItem(dailyTellijstKey(), JSON.stringify(list));
+}
+
+function normalizeProduct(p) {
+  return (p ?? "").trim().toLowerCase();
+}
+
+function latestMapByProduct(rowsSortedByDatumDesc) {
+  const map = new Map(); // key: normalized product -> latest row
+  for (const r of rowsSortedByDatumDesc) {
+    const key = normalizeProduct(r.product);
+    if (!key) continue;
+    if (!map.has(key)) map.set(key, r);
+  }
+  return map;
+}
+
 
 async function laadVoorraad() {
   // laad both tables
@@ -326,14 +360,28 @@ async function laadVoorraad() {
     return;
   }
 
-  const latest = latestPerProduct(data ?? []);
+    const latestMap = latestMapByProduct(data ?? []);
+  const allKeysSorted = Array.from(latestMap.keys()).sort(); // stabiel
 
-  // 20% tellijst op basis van latest
-  const daily = pickDailyCountList(latest, 0.2);
-  renderTellijst(daily);
+  // ✅ vaste tellijst per dag
+  let dailyKeys = getDailyTellijst();
 
-  // voorraad tabel = latest stand per product
-  renderVoorraadTabel(latest);
+  // als nog geen tellijst vandaag: genereer & bewaar
+  if (!dailyKeys) {
+    dailyKeys = pickDailyCountListProductKeys(allKeysSorted, 0.2);
+    setDailyTellijst(dailyKeys);
+  }
+
+  // als producten zijn veranderd: filter keys die niet meer bestaan
+  dailyKeys = dailyKeys.filter(k => latestMap.has(k));
+  setDailyTellijst(dailyKeys);
+
+  renderTellijstFromKeys(dailyKeys, latestMap);
+
+  // Voorraad tabel = latest stand per product (maak array van map values)
+  const latestArr = Array.from(latestMap.values());
+  renderVoorraadTabel(latestArr);
+
 }
 
 // Toevoegen via formulier (hoeveelheid mag 0)
