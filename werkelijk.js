@@ -104,6 +104,7 @@ function renderTellijst(items) {
     if (alreadyCounted) {
       tdGeteld.textContent = "✔";
       tdActie.textContent = "Geteld";
+      tdActie.classList.add("geteld");
       tdActie.style.color = "#16a34a";
       tdActie.style.fontWeight = "600";
     } else {
