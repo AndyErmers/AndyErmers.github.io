@@ -3,14 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mijn site + database</title>
+  <title>Boodschappen Thuis</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Realiteit (Supabase)</h1>
+  <main class="container">
+    <h1>Boodschappen Thuis</h1>
+    <p>Kies wat je wilt bekijken:</p>
 
-  <button id="load">Laad data</button>
-  <pre id="output">Nog niks geladen…</pre>
+    <div class="menu">
+      <a href="werkelijk.html" class="menu-button">
+        Werkelijke voorraad
+      </a>
 
-  <script type="module" src="./app.js"></script>
+      <a href="theoretisch.html" class="menu-button">
+        Theoretische voorraad
+      </a>
+
+      <a href="boodschappen.html" class="menu-button">
+        Boodschappenlijst
+      </a>
+    </div>
+  </main>
 </body>
 </html>

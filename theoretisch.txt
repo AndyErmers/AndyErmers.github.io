@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <title>Theoretische voorraad</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Theoretische voorraad</h1>
+    <p>Wat zou er volgens het systeem moeten zijn.</p>
+
+    <a href="index.html">← Terug naar home</a>
+  </main>
+</body>
+</html>

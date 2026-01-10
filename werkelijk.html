@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Werkelijke voorraad</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Werkelijke voorraad</h1>
+
+    <ul id="voorraad-lijst" class="lijst">
+      <li>Laden...</li>
+    </ul>
+
+    <h2>Nieuwe voorraad toevoegen</h2>
+
+    <form id="voorraad-form" class="form">
+      <input
+        type="text"
+        id="product"
+        placeholder="Product (bijv. Melk)"
+        required
+      />
+      <input
+        type="number"
+        id="hoeveelheid"
+        placeholder="Hoeveelheid (bijv. 2)"
+        step="0.01"
+        min="0.01"
+        required
+      />
+      <button type="submit">Toevoegen</button>
+    </form>
+
+    <p><a href="index.html">← Terug naar home</a></p>
+  </main>
+
+  <script type="module" src="werkelijk.js"></script>
+</body>
+</html>

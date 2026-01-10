@@ -1,2 +1,33 @@
-body { font-family: system-ui, Arial; margin: 0; }
-.container { max-width: 800px; padding: 40px 20px; margin: 0 auto; }
+.lijst {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 40px;
+}
+
+.lijst li {
+  background: white;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.form {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.form input {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form button {
+  padding: 10px 18px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
