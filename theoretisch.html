@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theoretische voorraad</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Theoretische voorraad</h1>
+
+    <section class="card">
+      <p class="muted">
+        Dit is een voorspelling op basis van jouw historie in Supabase.
+        We schatten verbruik per dag per product en trekken dat af van de laatste werkelijke stand.
+      </p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Laatste stand</th>
+            <th>Verbruik/dag</th>
+            <th>Dagen</th>
+            <th>Theoretisch nu</th>
+          </tr>
+        </thead>
+        <tbody id="theo-body">
+          <tr><td colspan="5">Laden...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p><a href="index.html">← Terug naar home</a></p>
+  </main>
+
+  <script type="module" src="theoretisch.js"></script>
+</body>
+</html>
