@@ -238,17 +238,8 @@ function renderVoorraadTabel(latest) {
 
         const productChanged = newProduct !== oldProduct;
         const qtyChanged = newQty !== oldQty;
+const datumToSave = new Date().toISOString();
 
-        // niets veranderd
-        if (!productChanged && !qtyChanged) {
-          btnCancel.click();
-          return;
-        }
-
-        // Datum alleen naar NU als hoeveelheid verandert
-        const datumToSave = qtyChanged
-          ? new Date().toISOString()
-          : (item.Datum ?? new Date().toISOString());
 
         // ✅ append-only: nieuwe regel toevoegen i.p.v. UPDATE
         const { error: insertError } = await supabase
