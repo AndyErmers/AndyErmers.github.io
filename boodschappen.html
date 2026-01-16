@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boodschappenlijst</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Boodschappenlijst</h1>
+
+    <section class="card">
+      <h2>Berekenen</h2>
+      <p class="muted">
+        Kies de dag dat je boodschappen doet. We voorspellen de voorraad op (die dag + 7 dagen).
+        Alles wat dan 0 of lager is, komt op de lijst.
+      </p>
+
+      <form id="boodschappen-form" class="form">
+        <input type="date" id="boodschappen-datum" required />
+        <button type="submit" class="btn btn-primary">Bereken</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Resultaat</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Verwacht op +7</th>
+            <th>Kopen</th>
+          </tr>
+        </thead>
+        <tbody id="boodschappen-body">
+          <tr><td colspan="3">Kies een datum en klik Bereken.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p><a href="index.html">← Terug naar home</a></p>
+  </main>
+
+  <script type="module" src="boodschappen.js"></script>
+</body>
+</html>
