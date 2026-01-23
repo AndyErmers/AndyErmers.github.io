@@ -60,20 +60,33 @@ function latestPerProduct(rows) {
   return Array.from(map.values());
 }
 
-function pickDailyCountListProductKeys(allProductKeysSorted, percentage = 0.2) {
-  const nTotal = allProductKeysSorted.length;
+function pickDailyCountListProductKeysOldest(latestMap, percentage = 0.2) {
+  const keys = Array.from(latestMap.keys());
+  const nTotal = keys.length;
   if (nTotal === 0) return [];
+
   const nPick = Math.max(1, Math.ceil(nTotal * percentage));
 
-  const rand = mulberry32(seedFromString(todayKey() + "|tellijst"));
-  const arr = [...allProductKeysSorted];
+  const sorted = keys.sort((a, b) => {
+    const la = getLastCounted(a); // 0 als nooit geteld via tellijst
+    const lb = getLastCounted(b);
 
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
+    // Eerst: producten die nog nooit geteld zijn (0) moeten bovenaan
+    if (la === 0 && lb !== 0) return -1;
+    if (la !== 0 && lb === 0) return 1;
 
-  return arr.slice(0, nPick);
+    // Als beiden al eens geteld zijn: oudste telling eerst
+    if (la !== 0 && lb !== 0 && la !== lb) return la - lb;
+
+    // Fallback: oudste DB datum eerst (voor "nooit geteld" groep, of gelijke lastCounted)
+    const da = Date.parse(latestMap.get(a)?.Datum ?? "") || 0;
+    const db = Date.parse(latestMap.get(b)?.Datum ?? "") || 0;
+    if (da !== db) return da - db;
+
+    return a.localeCompare(b);
+  });
+
+  return sorted.slice(0, nPick);
 }
 
 function renderTellijstFromKeys(productKeys, latestMap) {
@@ -143,8 +156,10 @@ function renderTellijstFromKeys(productKeys, latestMap) {
           return;
         }
 
-        markProductGeteld(productName);
-        await laadVoorraad();
+markProductGeteld(productName);
+setLastCountedNow(normalizeProduct(productName));
+await laadVoorraad();
+
       });
     }
 
@@ -316,6 +331,21 @@ function normalizeProduct(p) {
   return (p ?? "").trim().toLowerCase();
 }
 
+function lastCountedStorageKey(productKey) {
+  return `last-counted-${productKey}`;
+}
+
+function getLastCounted(productKey) {
+  const v = localStorage.getItem(lastCountedStorageKey(productKey));
+  const n = v ? Number(v) : 0;
+  return Number.isFinite(n) ? n : 0; // 0 = “nog nooit geteld”
+}
+
+function setLastCountedNow(productKey) {
+  localStorage.setItem(lastCountedStorageKey(productKey), String(Date.now()));
+}
+
+
 function latestMapByProduct(rowsSortedByDatumDesc) {
   const map = new Map();
   for (const r of rowsSortedByDatumDesc) {
@@ -344,22 +374,41 @@ async function laadVoorraad() {
   }
 
   const latestMap = latestMapByProduct(data ?? []);
-  const allKeysSorted = Array.from(latestMap.keys()).sort();
 
+  // ---- TELLijst: vandaag vast, maar repareren als keys verdwijnen ----
   let dailyKeys = getDailyTellijst();
-  if (!dailyKeys) {
-    dailyKeys = pickDailyCountListProductKeys(allKeysSorted, 0.2);
+
+  // 1) Als geen lijst (of leeg): maak hem op basis van oudste
+  if (!Array.isArray(dailyKeys) || dailyKeys.length === 0) {
+    dailyKeys = pickDailyCountListProductKeysOldest(latestMap, 0.2); // ✅ 20%
     setDailyTellijst(dailyKeys);
   }
 
-  dailyKeys = dailyKeys.filter((k) => latestMap.has(k));
-  setDailyTellijst(dailyKeys);
+  // 2) Verwijder keys die niet meer bestaan
+  let filtered = dailyKeys.filter((k) => latestMap.has(k));
 
+  // 3) Als er keys wegvallen: vul aan met oudste die nog niet in lijst zit
+  if (filtered.length !== dailyKeys.length) {
+    const needed = dailyKeys.length - filtered.length;
+
+    const pool = pickDailyCountListProductKeysOldest(latestMap, 1.0) // alles, gesorteerd
+      .filter((k) => !filtered.includes(k));
+
+    filtered = filtered.concat(pool.slice(0, needed));
+    setDailyTellijst(filtered);
+  }
+
+  dailyKeys = filtered;
+
+  // render tellijst
   renderTellijstFromKeys(dailyKeys, latestMap);
 
+  // render voorraad tabel
   const latestArr = Array.from(latestMap.values());
   renderVoorraadTabel(latestArr);
 }
+
+
 
 // Toevoegen via formulier (hoeveelheid mag 0)
 form.addEventListener("submit", async (e) => {
