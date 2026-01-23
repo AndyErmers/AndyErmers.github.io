@@ -136,6 +136,19 @@ section.card + h2 {
   margin-top: 40px;
 }
 
+/* =========================
+   TABLE / RESULT LAYOUT FIX
+   ========================= */
+
+/* wrapper zorgt dat tabel nooit buiten card loopt */
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* tabel zelf: fixed layout voorkomt “uitrekken” */
 .table {
   background: white;
   border-collapse: collapse;
@@ -144,33 +157,26 @@ section.card + h2 {
   margin: 20px 0 40px;
   overflow: hidden;
   width: 100%;
+  max-width: 100%;
+
+  table-layout: fixed;
+  white-space: normal;
 }
 
 .table tbody tr:hover {
   background: #f8fafc;
 }
 
+/* cellen breken lange woorden zodat het in het vak blijft */
 .table td,
 .table th {
   border-bottom: 1px solid #eee;
   padding: 12px 14px;
   text-align: left;
   vertical-align: middle;
-}
 
-.table td input {
-  background: #f8fafc;
-  border: 1px solid #d0d5dd;
-  border-radius: 10px;
-  font-size: 14px;
-  padding: 8px 10px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  width: 100%;
-}
-
-.table td input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .table th {
@@ -183,9 +189,61 @@ section.card + h2 {
   border-bottom: none;
 }
 
+/* kolombreedtes: product breed, cijfers smaller */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  width: 55%;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+  width: 25%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  width: 20%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* inputs netjes */
+.table td input {
+  background: #f8fafc;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font-size: 14px;
+  padding: 8px 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  width: 100%;
+  max-width: 140px;
+  box-sizing: border-box;
+}
+
+.table td input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
 .table-compact th,
 .table-compact td {
   padding: 10px 12px;
+}
+
+/* mobiel wat compacter */
+@media (max-width: 520px) {
+  .table td,
+  .table th {
+    padding: 10px 10px;
+    font-size: 14px;
+  }
+
+  .table td input {
+    max-width: 110px;
+  }
 }
 
 .voorraad-item {
