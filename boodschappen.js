@@ -30,11 +30,9 @@ function latestMapByProduct(rowsSortedByDatumDesc) {
 }
 
 // Verbruik per dag per product, met restock + foutmarge uitgesloten
+// Verbruik per dag per product: GEEN foutmarge, restock splitst in blokken
 function buildConsumptionPerDay(rowsSortedAsc) {
-  // Strakke marge (klein): pas aan als nodig
-  const TOLERANCE_ABS = 0.1;    // kleine telruis
-  const TOLERANCE_PCT = 0.005;  // 0.5%
-  const MAX_CONS_PER_DAY = 50;  // safety cap
+  const MAX_CONS_PER_DAY = 50; // safety cap (mag blijven)
 
   const map = new Map(); // key -> { productName, points: [{date, qty}] }
 
@@ -60,8 +58,12 @@ function buildConsumptionPerDay(rowsSortedAsc) {
       continue;
     }
 
-    let totalConsumed = 0;
-    let totalDays = 0;
+    let totalConsumed = 0; // som verbruik over alle blokken
+    let totalDays = 0;     // som dagen over alle blokken
+
+    // huidig blok
+    let blockConsumed = 0;
+    let blockDays = 0;
 
     for (let i = 1; i < pts.length; i++) {
       const prev = pts[i - 1];
@@ -72,22 +74,35 @@ function buildConsumptionPerDay(rowsSortedAsc) {
 
       const delta = cur.qty - prev.qty;
 
-      // dynamische foutmarge
-      const tol = Math.max(TOLERANCE_ABS, Math.abs(prev.qty) * TOLERANCE_PCT);
+      // delta > 0 = RESTOCK => blok afsluiten en opnieuw beginnen
+      if (delta > 0) {
+        if (blockDays > 0) {
+          totalConsumed += blockConsumed;
+          totalDays += blockDays;
+        }
+        blockConsumed = 0;
+        blockDays = 0;
+        continue;
+      }
 
-      // ruis/telfout negeren
-      if (Math.abs(delta) <= tol) continue;
+      // delta < 0 = VERBRUIK binnen huidig blok
+      if (delta < 0) {
+        const consumed = -delta;
+        const consPerDaySeg = consumed / dDays;
+        const cappedSeg = Math.min(consPerDaySeg, MAX_CONS_PER_DAY);
 
-      // stijging = restock/correctie → niet als verbruik tellen
-      if (delta > 0) continue;
+        blockConsumed += cappedSeg * dDays;
+        blockDays += dDays;
+        continue;
+      }
 
-      // echte daling = verbruik
-      const consumed = -delta;
-      const consPerDaySegment = consumed / dDays;
-      const capped = Math.min(consPerDaySegment, MAX_CONS_PER_DAY);
+      // delta === 0 -> niets
+    }
 
-      totalConsumed += capped * dDays;
-      totalDays += dDays;
+    // laatste blok ook meetellen
+    if (blockDays > 0) {
+      totalConsumed += blockConsumed;
+      totalDays += blockDays;
     }
 
     const consPerDay = totalDays > 0 ? totalConsumed / totalDays : 0;
@@ -96,6 +111,7 @@ function buildConsumptionPerDay(rowsSortedAsc) {
 
   return result;
 }
+
 
 function parseDateInputToIso(dateStr) {
   // date input is YYYY-MM-DD; maak er lokale dagstart van

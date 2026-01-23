@@ -24,14 +24,10 @@ function round2(n) {
 /**
  * Berekent per product:
  * - latestQty, latestDate
- * - avgConsumptionPerDay (alleen dalingen tellen als verbruik)
+ * - avgConsumptionPerDay (geen foutmarge, restock splitst in blokken)
  */
 function buildStats(rowsSortedAsc) {
-  // Instelbare parameters (pas aan als je wilt)
-const TOLERANCE_ABS = 0.1;     // kleine float-ruis
-const TOLERANCE_PCT = 0.005;   // 0.5% voor grotere aantallen
-
-  const MAX_CONS_PER_DAY = 20;    // cap: max verbruik per dag (bescherming tegen onzin)
+  const MAX_CONS_PER_DAY = 20; // safety cap (mag blijven)
 
   const map = new Map(); // key -> { productName, points: [{date, qty}] }
 
@@ -53,13 +49,25 @@ const TOLERANCE_PCT = 0.005;   // 0.5% voor grotere aantallen
     const pts = obj.points;
     if (pts.length === 0) continue;
 
-    // laatste punt
     const latest = pts[pts.length - 1];
     const latestQty = latest.qty;
     const latestDate = latest.date;
 
+    if (pts.length < 2) {
+      results.push({
+        productName: obj.productName,
+        latestQty,
+        latestDate,
+        consumptionPerDay: 0
+      });
+      continue;
+    }
+
     let totalConsumed = 0;
     let totalDays = 0;
+
+    let blockConsumed = 0;
+    let blockDays = 0;
 
     for (let i = 1; i < pts.length; i++) {
       const prev = pts[i - 1];
@@ -70,29 +78,34 @@ const TOLERANCE_PCT = 0.005;   // 0.5% voor grotere aantallen
 
       const delta = cur.qty - prev.qty;
 
-      // Dynamische foutmarge: max(vaste marge, procentueel)
-      const tol = Math.max(TOLERANCE_ABS, Math.abs(prev.qty) * TOLERANCE_PCT);
-
-      // 1) Kleine ruis/telfout => negeren
-      if (Math.abs(delta) <= tol) {
-        continue;
-      }
-
-      // 2) Stijging (bijvullen/aankoop) => negeren voor verbruik
+      // RESTOCK => nieuw blok
       if (delta > 0) {
+        if (blockDays > 0) {
+          totalConsumed += blockConsumed;
+          totalDays += blockDays;
+        }
+        blockConsumed = 0;
+        blockDays = 0;
         continue;
       }
 
-      // 3) Echte daling => verbruik
-      const consumed = -delta;
+      // VERBRUIK
+      if (delta < 0) {
+        const consumed = -delta;
+        const consPerDaySeg = consumed / dDays;
+        const cappedSeg = Math.min(consPerDaySeg, MAX_CONS_PER_DAY);
 
-      // Extra safety: als iemand per ongeluk van 100 naar 0 zet in 1 dag,
-      // en dat is niet logisch, dan wil je dit niet je hele model laten slopen.
-      const consPerDay = consumed / dDays;
-      const cappedConsPerDay = Math.min(consPerDay, MAX_CONS_PER_DAY);
+        blockConsumed += cappedSeg * dDays;
+        blockDays += dDays;
+        continue;
+      }
 
-      totalConsumed += cappedConsPerDay * dDays;
-      totalDays += dDays;
+      // delta === 0 -> niets
+    }
+
+    if (blockDays > 0) {
+      totalConsumed += blockConsumed;
+      totalDays += blockDays;
     }
 
     const consumptionPerDay = totalDays > 0 ? totalConsumed / totalDays : 0;
@@ -107,7 +120,6 @@ const TOLERANCE_PCT = 0.005;   // 0.5% voor grotere aantallen
 
   return results;
 }
-
 
 async function loadTheoretisch() {
   tbody.innerHTML = `<tr><td colspan="5">Laden...</td></tr>`;
