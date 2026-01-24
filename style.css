@@ -13,6 +13,7 @@ body {
   margin-right: 8px;
   padding: 8px 12px;
   transition: all 0.15s ease;
+  white-space: nowrap; /* voorkomt rare knip bij knoppen */
 }
 
 .btn:hover {
@@ -137,10 +138,10 @@ section.card + h2 {
 }
 
 /* =========================
-   TABLE / RESULT LAYOUT FIX
+   TABLES (GENERIC, SAFE)
    ========================= */
 
-/* wrapper zorgt dat tabel nooit buiten card loopt */
+/* wrapper zorgt dat brede tabellen (zoals 4 kolommen) kunnen scrollen op mobiel */
 .table-wrapper {
   width: 100%;
   max-width: 100%;
@@ -148,26 +149,29 @@ section.card + h2 {
   -webkit-overflow-scrolling: touch;
 }
 
-/* tabel zelf: fixed layout voorkomt “uitrekken” */
+/* standaard tabel: GEEN fixed column widths hier (want sommige tabellen hebben 3, andere 4 kolommen) */
 .table {
   background: white;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   border-radius: 12px;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
   margin: 20px 0 40px;
-  overflow: hidden;
   width: 100%;
   max-width: 100%;
 
-  table-layout: fixed;
-  white-space: normal;
+  /* belangrijk: laat inhoud niet “afgesneden” worden */
+  overflow: visible;
+
+  /* default: auto layout zodat buttons niet verdwijnen */
+  table-layout: auto;
 }
 
 .table tbody tr:hover {
   background: #f8fafc;
 }
 
-/* cellen breken lange woorden zodat het in het vak blijft */
+/* cellen */
 .table td,
 .table th {
   border-bottom: 1px solid #eee;
@@ -175,6 +179,7 @@ section.card + h2 {
   text-align: left;
   vertical-align: middle;
 
+  /* productnamen mogen breken */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -189,27 +194,7 @@ section.card + h2 {
   border-bottom: none;
 }
 
-/* kolombreedtes: product breed, cijfers smaller */
-.table th:nth-child(1),
-.table td:nth-child(1) {
-  width: 55%;
-}
-
-.table th:nth-child(2),
-.table td:nth-child(2) {
-  width: 25%;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.table th:nth-child(3),
-.table td:nth-child(3) {
-  width: 20%;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-/* inputs netjes */
+/* input in tabel: niet te breed, maar wel bruikbaar */
 .table td input {
   background: #f8fafc;
   border: 1px solid #d0d5dd;
@@ -219,7 +204,7 @@ section.card + h2 {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   width: 100%;
-  max-width: 140px;
+  min-width: 90px;
   box-sizing: border-box;
 }
 
@@ -233,16 +218,89 @@ section.card + h2 {
   padding: 10px 12px;
 }
 
-/* mobiel wat compacter */
+/* =========================
+   SPECIFIC TABLE TYPES
+   ========================= */
+
+/* 3 kolommen (boodschappenlijst: Product / Verwacht / Kopen) */
+.table-3col {
+  table-layout: fixed;
+}
+
+.table-3col th:nth-child(1),
+.table-3col td:nth-child(1) {
+  width: 55%;
+}
+
+.table-3col th:nth-child(2),
+.table-3col td:nth-child(2) {
+  width: 25%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table-3col th:nth-child(3),
+.table-3col td:nth-child(3) {
+  width: 20%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 4 kolommen (tellijst/voorraad: Product / ... / Actie) */
+.table-4col {
+  table-layout: fixed;
+}
+
+.table-4col th:nth-child(1),
+.table-4col td:nth-child(1) {
+  width: 38%;
+}
+
+.table-4col th:nth-child(2),
+.table-4col td:nth-child(2) {
+  width: 18%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table-4col th:nth-child(3),
+.table-4col td:nth-child(3) {
+  width: 20%;
+  white-space: nowrap;
+}
+
+.table-4col th:nth-child(4),
+.table-4col td:nth-child(4) {
+  width: 24%;
+  white-space: nowrap; /* knoppen blijven zichtbaar */
+}
+
+/* Actie-cel: knoppen netjes naast elkaar */
+.table td:last-child {
+  white-space: nowrap;
+}
+
+/* mobiel */
 @media (max-width: 520px) {
+  .container {
+    padding: 24px 14px;
+  }
+
   .table td,
   .table th {
     padding: 10px 10px;
     font-size: 14px;
   }
 
+  .btn {
+    padding: 7px 10px;
+  }
+
   .table td input {
-    max-width: 110px;
+    min-width: 80px;
   }
 }
 
