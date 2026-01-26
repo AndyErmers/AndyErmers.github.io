@@ -24,10 +24,13 @@ function round2(n) {
 /**
  * Berekent per product:
  * - latestQty, latestDate
- * - avgConsumptionPerDay (geen foutmarge, restock splitst in blokken)
+ * - consumptionPerDay:
+ *   - GEEN foutmarge
+ *   - Restock (delta > 0) splitst in blokken
+ *   - Dagen zonder verbruik (delta === 0) tellen mee in noemer
  */
 function buildStats(rowsSortedAsc) {
-  const MAX_CONS_PER_DAY = 20; // safety cap (mag blijven)
+  const MAX_CONS_PER_DAY = 20; // cap: max verbruik per dag (bescherming tegen onzin)
 
   const map = new Map(); // key -> { productName, points: [{date, qty}] }
 
@@ -40,7 +43,10 @@ function buildStats(rowsSortedAsc) {
     }
 
     const qty = Number(r.Hoeveelheid ?? 0);
-    map.get(key).points.push({ date: r.Datum, qty: Number.isFinite(qty) ? qty : 0 });
+    map.get(key).points.push({
+      date: r.Datum,
+      qty: Number.isFinite(qty) ? qty : 0,
+    });
   }
 
   const results = [];
@@ -58,7 +64,7 @@ function buildStats(rowsSortedAsc) {
         productName: obj.productName,
         latestQty,
         latestDate,
-        consumptionPerDay: 0
+        consumptionPerDay: 0,
       });
       continue;
     }
@@ -78,7 +84,7 @@ function buildStats(rowsSortedAsc) {
 
       const delta = cur.qty - prev.qty;
 
-      // RESTOCK => nieuw blok
+      // RESTOCK => blok afsluiten en resetten
       if (delta > 0) {
         if (blockDays > 0) {
           totalConsumed += blockConsumed;
@@ -89,20 +95,22 @@ function buildStats(rowsSortedAsc) {
         continue;
       }
 
-      // VERBRUIK
+      // ✅ In hetzelfde blok (delta <= 0): dagen altijd meetellen
+      blockDays += dDays;
+
+      // Verbruik alleen bij daling
       if (delta < 0) {
         const consumed = -delta;
+
         const consPerDaySeg = consumed / dDays;
         const cappedSeg = Math.min(consPerDaySeg, MAX_CONS_PER_DAY);
 
         blockConsumed += cappedSeg * dDays;
-        blockDays += dDays;
-        continue;
       }
-
-      // delta === 0 -> niets
+      // delta === 0 -> alleen dagen tellen
     }
 
+    // laatste blok meetellen
     if (blockDays > 0) {
       totalConsumed += blockConsumed;
       totalDays += blockDays;
@@ -114,7 +122,7 @@ function buildStats(rowsSortedAsc) {
       productName: obj.productName,
       latestQty,
       latestDate,
-      consumptionPerDay
+      consumptionPerDay,
     });
   }
 
@@ -124,7 +132,6 @@ function buildStats(rowsSortedAsc) {
 async function loadTheoretisch() {
   tbody.innerHTML = `<tr><td colspan="5">Laden...</td></tr>`;
 
-  // Pak genoeg historie om verbruik te kunnen schatten
   const { data, error } = await supabase
     .from("Realiteit")
     .select("product, Hoeveelheid, Datum")
@@ -144,18 +151,17 @@ async function loadTheoretisch() {
     return;
   }
 
-  // Bereken theoretische voorraad nu
   const nowIso = new Date().toISOString();
 
-  // sorteer op productnaam
   stats.sort((a, b) => a.productName.localeCompare(b.productName, "nl"));
 
   tbody.innerHTML = "";
 
   for (const s of stats) {
     const days = daysBetween(s.latestDate, nowIso);
-const theoRaw = Math.max(0, s.latestQty - (s.consumptionPerDay * days));
-const theoInt = Math.max(0, Math.round(theoRaw)); // of Math.floor / Math.ceil, zie hieronder
+
+    const theoRaw = Math.max(0, s.latestQty - s.consumptionPerDay * days);
+    const theoInt = Math.max(0, Math.round(theoRaw));
 
     const tr = document.createElement("tr");
 
@@ -172,7 +178,7 @@ const theoInt = Math.max(0, Math.round(theoRaw)); // of Math.floor / Math.ceil, 
     tdD.textContent = String(round2(days));
 
     const tdT = document.createElement("td");
-tdT.textContent = String(theoInt);
+    tdT.textContent = String(theoInt);
 
     tr.appendChild(tdP);
     tr.appendChild(tdL);

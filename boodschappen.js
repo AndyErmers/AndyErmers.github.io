@@ -29,8 +29,10 @@ function latestMapByProduct(rowsSortedByDatumDesc) {
   return map;
 }
 
-// Verbruik per dag per product, met restock + foutmarge uitgesloten
-// Verbruik per dag per product: GEEN foutmarge, restock splitst in blokken
+// ✅ Verbruik per dag per product:
+// - GEEN foutmarge
+// - Restock (delta > 0) splitst in nieuw blok
+// - Dagen zonder verbruik (delta === 0) tellen mee in noemer
 function buildConsumptionPerDay(rowsSortedAsc) {
   const MAX_CONS_PER_DAY = 50; // safety cap (mag blijven)
 
@@ -61,7 +63,6 @@ function buildConsumptionPerDay(rowsSortedAsc) {
     let totalConsumed = 0; // som verbruik over alle blokken
     let totalDays = 0;     // som dagen over alle blokken
 
-    // huidig blok
     let blockConsumed = 0;
     let blockDays = 0;
 
@@ -74,7 +75,7 @@ function buildConsumptionPerDay(rowsSortedAsc) {
 
       const delta = cur.qty - prev.qty;
 
-      // delta > 0 = RESTOCK => blok afsluiten en opnieuw beginnen
+      // RESTOCK => blok afsluiten en nieuw blok beginnen
       if (delta > 0) {
         if (blockDays > 0) {
           totalConsumed += blockConsumed;
@@ -85,21 +86,21 @@ function buildConsumptionPerDay(rowsSortedAsc) {
         continue;
       }
 
-      // delta < 0 = VERBRUIK binnen huidig blok
+      // ✅ In hetzelfde blok (delta <= 0): dagen ALTIJD mee tellen
+      blockDays += dDays;
+
+      // Verbruik alleen bij daling
       if (delta < 0) {
         const consumed = -delta;
         const consPerDaySeg = consumed / dDays;
         const cappedSeg = Math.min(consPerDaySeg, MAX_CONS_PER_DAY);
 
         blockConsumed += cappedSeg * dDays;
-        blockDays += dDays;
-        continue;
       }
-
-      // delta === 0 -> niets
+      // delta === 0 -> alleen dagen tellen (noemer groter)
     }
 
-    // laatste blok ook meetellen
+    // laatste blok meetellen
     if (blockDays > 0) {
       totalConsumed += blockConsumed;
       totalDays += blockDays;
@@ -111,7 +112,6 @@ function buildConsumptionPerDay(rowsSortedAsc) {
 
   return result;
 }
-
 
 function parseDateInputToIso(dateStr) {
   // date input is YYYY-MM-DD; maak er lokale dagstart van
@@ -133,7 +133,7 @@ function round0(n) {
 function buyAmountFromPred(predAtPlus7) {
   // Als pred <= 0 → kopen om op 0 uit te komen
   // pred = -7 → kopen 7
-  // pred = 0 → kopen 0 (zoals jij zei)
+  // pred = 0 → kopen 0
   if (predAtPlus7 > 0) return 0;
   return Math.ceil(-predAtPlus7);
 }
@@ -171,7 +171,7 @@ async function calculateShoppingList(shopDateIso) {
     const cons = consMap.get(key)?.consPerDay ?? 0;
 
     const daysToTarget = daysBetween(latestDate, targetIso);
-    const pred = latestQty - (cons * daysToTarget);
+    const pred = latestQty - cons * daysToTarget;
 
     if (pred <= 0) {
       items.push({
@@ -197,10 +197,10 @@ async function calculateShoppingList(shopDateIso) {
     tdP.textContent = it.product;
 
     const tdV = document.createElement("td");
-    tdV.textContent = String(round0(it.predAtPlus7)); // altijd heel getal
+    tdV.textContent = String(round0(it.predAtPlus7));
 
     const tdB = document.createElement("td");
-    tdB.textContent = String(it.buy); // koopadvies als integer
+    tdB.textContent = String(it.buy);
 
     tr.appendChild(tdP);
     tr.appendChild(tdV);
