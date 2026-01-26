@@ -24,10 +24,16 @@ function round2(n) {
 /**
  * Berekent per product:
  * - latestQty, latestDate
- * - avgConsumptionPerDay (geen foutmarge, restock splitst in blokken)
+ * - consumptionPerDay
+ *
+ * Regels:
+ * - GEEN foutmarge
+ * - Restock (delta > 0) splitst in blokken
+ * - Dagen zonder verbruik tellen mee
+ * - MAAR dagen met werkelijke voorraad 0 tellen NIET mee (prevQty === 0)
  */
 function buildStats(rowsSortedAsc) {
-  const MAX_CONS_PER_DAY = 20; // safety cap (mag blijven)
+  const MAX_CONS_PER_DAY = 20;
 
   const map = new Map(); // key -> { productName, points: [{date, qty}] }
 
@@ -40,7 +46,10 @@ function buildStats(rowsSortedAsc) {
     }
 
     const qty = Number(r.Hoeveelheid ?? 0);
-    map.get(key).points.push({ date: r.Datum, qty: Number.isFinite(qty) ? qty : 0 });
+    map.get(key).points.push({
+      date: r.Datum,
+      qty: Number.isFinite(qty) ? qty : 0
+    });
   }
 
   const results = [];
@@ -50,7 +59,7 @@ function buildStats(rowsSortedAsc) {
     if (pts.length === 0) continue;
 
     const latest = pts[pts.length - 1];
-    const latestQty = latest.qty;
+    const latestQty = Math.max(0, Number(latest.qty ?? 0));
     const latestDate = latest.date;
 
     if (pts.length < 2) {
@@ -76,7 +85,9 @@ function buildStats(rowsSortedAsc) {
       const dDays = daysBetween(prev.date, cur.date);
       if (dDays <= 0) continue;
 
-      const delta = cur.qty - prev.qty;
+      const prevQty = Math.max(0, Number(prev.qty ?? 0));
+      const curQty = Math.max(0, Number(cur.qty ?? 0));
+      const delta = curQty - prevQty;
 
       // RESTOCK => nieuw blok
       if (delta > 0) {
@@ -89,6 +100,14 @@ function buildStats(rowsSortedAsc) {
         continue;
       }
 
+      // ✅ Alleen dagen meetellen als je aan het begin voorraad had
+      if (prevQty > 0) {
+        blockDays += dDays;
+      } else {
+        // prevQty == 0 en delta <= 0: 0→0 periodes niet meetellen
+        continue;
+      }
+
       // VERBRUIK
       if (delta < 0) {
         const consumed = -delta;
@@ -96,11 +115,7 @@ function buildStats(rowsSortedAsc) {
         const cappedSeg = Math.min(consPerDaySeg, MAX_CONS_PER_DAY);
 
         blockConsumed += cappedSeg * dDays;
-        blockDays += dDays;
-        continue;
       }
-
-      // delta === 0 -> niets
     }
 
     if (blockDays > 0) {
@@ -120,6 +135,7 @@ function buildStats(rowsSortedAsc) {
 
   return results;
 }
+
 
 async function loadTheoretisch() {
   tbody.innerHTML = `<tr><td colspan="5">Laden...</td></tr>`;
