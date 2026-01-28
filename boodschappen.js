@@ -29,10 +29,16 @@ function latestMapByProduct(rowsSortedByDatumDesc) {
   return map;
 }
 
-// Verbruik per dag per product, met restock + foutmarge uitgesloten
-// Verbruik per dag per product: GEEN foutmarge, restock splitst in blokken
-// Verbruik per dag per product: GEEN foutmarge, restock splitst in blokken
-// Dagen zonder verbruik tellen mee, MAAR dagen met werkelijke voorraad 0 NIET.
+/**
+ * Verbruik per dag per product:
+ * - GEEN foutmarge
+ * - Restock (delta > 0) splitst in nieuw blok
+ * - Dagen zonder verbruik tellen mee (maar alleen als er voorraad was)
+ * - Dagen met werkelijke voorraad 0 tellen NIET mee (prevQty === 0)
+ *   - 10 -> 0 telt mee
+ *   - 0 -> 0 telt niet mee
+ *   - 0 -> restock telt niet mee (restock splitst blok)
+ */
 function buildConsumptionPerDay(rowsSortedAsc) {
   const MAX_CONS_PER_DAY = 50; // safety cap
 
@@ -47,7 +53,7 @@ function buildConsumptionPerDay(rowsSortedAsc) {
     const qty = Number(r.Hoeveelheid ?? 0);
     map.get(key).points.push({
       date: r.Datum,
-      qty: Number.isFinite(qty) ? qty : 0,
+      qty: Number.isFinite(qty) ? qty : 0
     });
   }
 
@@ -88,12 +94,11 @@ function buildConsumptionPerDay(rowsSortedAsc) {
         continue;
       }
 
-      // ✅ Alleen dagen meetellen als je aan het begin van het interval voorraad had
-      // (als prevQty === 0 dan kon je in die periode niets verbruiken).
+      // ✅ Alleen dagen meetellen als je aan het begin voorraad had
+      // (prevQty == 0 => je kon niets verbruiken, dus die periode niet meetellen)
       if (prevQty > 0) {
-        blockDays += dDays;
+        blockDays += dDays; // delta kan 0 zijn: dagen zonder verbruik tellen mee
       } else {
-        // prevQty == 0 en delta <= 0: dit zijn 0→0 periodes, niet meetellen
         continue;
       }
 
@@ -106,6 +111,7 @@ function buildConsumptionPerDay(rowsSortedAsc) {
       }
     }
 
+    // laatste blok meetellen
     if (blockDays > 0) {
       totalConsumed += blockConsumed;
       totalDays += blockDays;
@@ -117,8 +123,6 @@ function buildConsumptionPerDay(rowsSortedAsc) {
 
   return result;
 }
-
-
 
 function parseDateInputToIso(dateStr) {
   // date input is YYYY-MM-DD; maak er lokale dagstart van
@@ -140,7 +144,7 @@ function round0(n) {
 function buyAmountFromPred(predAtPlus7) {
   // Als pred <= 0 → kopen om op 0 uit te komen
   // pred = -7 → kopen 7
-  // pred = 0 → kopen 0 (zoals jij zei)
+  // pred = 0 → kopen 0
   if (predAtPlus7 > 0) return 0;
   return Math.ceil(-predAtPlus7);
 }
@@ -162,7 +166,9 @@ async function calculateShoppingList(shopDateIso) {
   }
 
   const rowsAsc = data ?? [];
-  const rowsDesc = [...rowsAsc].sort((a, b) => new Date(b.Datum) - new Date(a.Datum));
+  const rowsDesc = [...rowsAsc].sort(
+    (a, b) => new Date(b.Datum) - new Date(a.Datum)
+  );
 
   const latestMap = latestMapByProduct(rowsDesc);
   const consMap = buildConsumptionPerDay(rowsAsc);
@@ -178,13 +184,13 @@ async function calculateShoppingList(shopDateIso) {
     const cons = consMap.get(key)?.consPerDay ?? 0;
 
     const daysToTarget = daysBetween(latestDate, targetIso);
-    const pred = latestQty - (cons * daysToTarget);
+    const pred = latestQty - cons * daysToTarget;
 
     if (pred <= 0) {
       items.push({
         product: latest.product ?? "",
         predAtPlus7: pred,
-        buy: buyAmountFromPred(pred),
+        buy: buyAmountFromPred(pred)
       });
     }
   }
@@ -204,10 +210,10 @@ async function calculateShoppingList(shopDateIso) {
     tdP.textContent = it.product;
 
     const tdV = document.createElement("td");
-    tdV.textContent = String(round0(it.predAtPlus7)); // altijd heel getal
+    tdV.textContent = String(round0(it.predAtPlus7));
 
     const tdB = document.createElement("td");
-    tdB.textContent = String(it.buy); // koopadvies als integer
+    tdB.textContent = String(it.buy);
 
     tr.appendChild(tdP);
     tr.appendChild(tdV);
