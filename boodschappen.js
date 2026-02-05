@@ -35,12 +35,9 @@ function latestMapByProduct(rowsSortedByDatumDesc) {
  * - Restock (delta > 0) splitst in nieuw blok
  * - Dagen zonder verbruik tellen mee (maar alleen als er voorraad was)
  * - Dagen met werkelijke voorraad 0 tellen NIET mee (prevQty === 0)
- *   - 10 -> 0 telt mee
- *   - 0 -> 0 telt niet mee
- *   - 0 -> restock telt niet mee (restock splitst blok)
  */
 function buildConsumptionPerDay(rowsSortedAsc) {
-  const MAX_CONS_PER_DAY = 50; // safety cap
+  const MAX_CONS_PER_DAY = 50;
 
   const map = new Map(); // key -> { productName, points: [{date, qty}] }
 
@@ -94,8 +91,7 @@ function buildConsumptionPerDay(rowsSortedAsc) {
         continue;
       }
 
-      // ✅ Alleen dagen meetellen als je aan het begin voorraad had
-      // (prevQty == 0 => je kon niets verbruiken, dus die periode niet meetellen)
+      // Alleen dagen meetellen als je aan het begin voorraad had
       if (prevQty > 0) {
         blockDays += dDays; // delta kan 0 zijn: dagen zonder verbruik tellen mee
       } else {
@@ -131,20 +127,11 @@ function parseDateInputToIso(dateStr) {
   return dt.toISOString();
 }
 
-function addDaysIso(iso, days) {
-  const d = new Date(iso);
-  d.setDate(d.getDate() + days);
-  return d.toISOString();
-}
-
 function round0(n) {
-  return Math.round(n); // voor “verwacht op +7” als heel getal
+  return Math.round(n);
 }
 
 function buyAmountFromPred(predAtPlus7) {
-  // Als pred <= 0 → kopen om op 0 uit te komen
-  // pred = -7 → kopen 7
-  // pred = 0 → kopen 0
   if (predAtPlus7 > 0) return 0;
   return Math.ceil(-predAtPlus7);
 }
@@ -152,7 +139,6 @@ function buyAmountFromPred(predAtPlus7) {
 async function calculateShoppingList(shopDateIso) {
   tbody.innerHTML = `<tr><td colspan="3">Laden...</td></tr>`;
 
-  // Haal genoeg historie op
   const { data, error } = await supabase
     .from("Realiteit")
     .select("product, Hoeveelheid, Datum")
@@ -166,14 +152,10 @@ async function calculateShoppingList(shopDateIso) {
   }
 
   const rowsAsc = data ?? [];
-  const rowsDesc = [...rowsAsc].sort(
-    (a, b) => new Date(b.Datum) - new Date(a.Datum)
-  );
+  const rowsDesc = [...rowsAsc].sort((a, b) => new Date(b.Datum) - new Date(a.Datum));
 
   const latestMap = latestMapByProduct(rowsDesc);
   const consMap = buildConsumptionPerDay(rowsAsc);
-
-  const targetIso = addDaysIso(shopDateIso, 7);
 
   const items = [];
 
@@ -183,17 +165,21 @@ async function calculateShoppingList(shopDateIso) {
 
     const cons = consMap.get(key)?.consPerDay ?? 0;
 
-    const daysToTarget = daysBetween(latestDate, targetIso);
-    const pred = latestQty - cons * daysToTarget;
+    // 1) voorraad op boodschappendatum: nooit onder 0
+    const daysToShop = daysBetween(latestDate, shopDateIso);
+    const stockAtShop = Math.max(0, latestQty - cons * daysToShop);
 
-    if (pred <= 0) {
+    // 2) voorspelling op +7 vanaf boodschappendatum (mag negatief zijn)
+    const predAtPlus7 = stockAtShop - cons * 7;
+
+    if (predAtPlus7 <= 0) {
       items.push({
         product: latest.product ?? "",
-        predAtPlus7: pred,
-        buy: buyAmountFromPred(pred)
+        predAtPlus7,
+        buy: buyAmountFromPred(predAtPlus7)
       });
     }
-  }
+  } // ✅ for-loop correct afgesloten
 
   items.sort((a, b) => b.buy - a.buy || a.product.localeCompare(b.product, "nl"));
 
