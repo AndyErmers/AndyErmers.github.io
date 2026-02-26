@@ -87,6 +87,71 @@ function pickDailyCountListProductKeysOldest(latestMap, fixedAmount = 5) {
   return sorted.slice(0, nPick);
 }
 
+function cleanupDoneKey() {
+  return `cleanup-done-${todayKey()}`;
+}
+
+function isCleanupDoneToday() {
+  return localStorage.getItem(cleanupDoneKey()) === "1";
+}
+
+function markCleanupDoneToday() {
+  localStorage.setItem(cleanupDoneKey(), "1");
+}
+
+function isDailyTellijstComplete() {
+  const dailyKeys = getDailyTellijst();
+  if (!Array.isArray(dailyKeys) || dailyKeys.length === 0) return false;
+
+  // dailyKeys zijn genormaliseerd (lowercase), daarom checken op key
+  return dailyKeys.every((k) => isProductGeteld(k));
+}
+
+async function cleanupOldestRowsPercentage(pct = 0.03) {
+  // 1) totaal aantal rijen bepalen
+  const { count, error: countError } = await supabase
+    .from("Realiteit")
+    .select("id", { count: "exact", head: true });
+
+  if (countError) {
+    console.error("Cleanup count error:", countError);
+    return;
+  }
+
+  const total = count ?? 0;
+  const nDelete = Math.floor(total * pct);
+
+  if (nDelete <= 0) return;
+
+  // 2) oudste ids ophalen
+  const { data: oldestRows, error: fetchError } = await supabase
+    .from("Realiteit")
+    .select("id")
+    .order("Datum", { ascending: true })
+    .limit(nDelete);
+
+  if (fetchError) {
+    console.error("Cleanup fetch oldest error:", fetchError);
+    return;
+  }
+
+  const ids = (oldestRows ?? []).map((r) => r.id).filter(Boolean);
+  if (ids.length === 0) return;
+
+  // 3) verwijderen
+  const { error: delError } = await supabase
+    .from("Realiteit")
+    .delete()
+    .in("id", ids);
+
+  if (delError) {
+    console.error("Cleanup delete error:", delError);
+    return;
+  }
+
+  console.log(`Cleanup: deleted ${ids.length} oldest rows (${Math.round(pct * 100)}%).`);
+}
+
 function renderTellijstFromKeys(productKeys, latestMap) {
   if (!tellijstBody) return;
 
@@ -156,6 +221,13 @@ function renderTellijstFromKeys(productKeys, latestMap) {
 
 markProductGeteld(productName);
 setLastCountedNow(normalizeProduct(productName));
+
+// ✅ als tellijst compleet is: 1x per dag 3% oudste rijen verwijderen
+if (!isCleanupDoneToday() && isDailyTellijstComplete()) {
+  await cleanupOldestRowsPercentage(0.03);
+  markCleanupDoneToday();
+}
+
 await laadVoorraad();
 
       });
