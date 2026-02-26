@@ -401,9 +401,13 @@ const pool = pickDailyCountListProductKeysOldest(latestMap, latestMap.size)
   // render tellijst
   renderTellijstFromKeys(dailyKeys, latestMap);
 
-  // render voorraad tabel
-  const latestArr = Array.from(latestMap.values());
-  renderVoorraadTabel(latestArr);
+// render voorraad tabel alfabetisch gesorteerd
+const latestArr = Array.from(latestMap.values())
+  .sort((a, b) =>
+    (a.product ?? "").localeCompare(b.product ?? "", "nl", { sensitivity: "base" })
+  );
+
+renderVoorraadTabel(latestArr);
 }
 
 
