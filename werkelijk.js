@@ -60,25 +60,23 @@ function latestPerProduct(rows) {
   return Array.from(map.values());
 }
 
-function pickDailyCountListProductKeysOldest(latestMap, percentage = 0.2) {
+function pickDailyCountListProductKeysOldest(latestMap, fixedAmount = 5) {
   const keys = Array.from(latestMap.keys());
   const nTotal = keys.length;
   if (nTotal === 0) return [];
 
-  const nPick = Math.max(1, Math.ceil(nTotal * percentage));
+  // maximaal aantal = totaal aantal producten
+  const nPick = Math.min(fixedAmount, nTotal);
 
   const sorted = keys.sort((a, b) => {
-    const la = getLastCounted(a); // 0 als nooit geteld via tellijst
+    const la = getLastCounted(a);
     const lb = getLastCounted(b);
 
-    // Eerst: producten die nog nooit geteld zijn (0) moeten bovenaan
     if (la === 0 && lb !== 0) return -1;
     if (la !== 0 && lb === 0) return 1;
 
-    // Als beiden al eens geteld zijn: oudste telling eerst
     if (la !== 0 && lb !== 0 && la !== lb) return la - lb;
 
-    // Fallback: oudste DB datum eerst (voor "nooit geteld" groep, of gelijke lastCounted)
     const da = Date.parse(latestMap.get(a)?.Datum ?? "") || 0;
     const db = Date.parse(latestMap.get(b)?.Datum ?? "") || 0;
     if (da !== db) return da - db;
@@ -380,7 +378,7 @@ async function laadVoorraad() {
 
   // 1) Als geen lijst (of leeg): maak hem op basis van oudste
   if (!Array.isArray(dailyKeys) || dailyKeys.length === 0) {
-    dailyKeys = pickDailyCountListProductKeysOldest(latestMap, 0.2); // ✅ 20%
+dailyKeys = pickDailyCountListProductKeysOldest(latestMap, 5); // ✅ 5 producten per dag
     setDailyTellijst(dailyKeys);
   }
 
@@ -391,7 +389,7 @@ async function laadVoorraad() {
   if (filtered.length !== dailyKeys.length) {
     const needed = dailyKeys.length - filtered.length;
 
-    const pool = pickDailyCountListProductKeysOldest(latestMap, 1.0) // alles, gesorteerd
+const pool = pickDailyCountListProductKeysOldest(latestMap, latestMap.size)
       .filter((k) => !filtered.includes(k));
 
     filtered = filtered.concat(pool.slice(0, needed));
