@@ -8,7 +8,7 @@
 </head>
 <body>
   <main class="container">
-    <h1>Boodschappenlijst</h1>
+    <h1 class="page-title">Boodschappenlijst</h1>
 
     <section class="card">
       <h2>Berekenen</h2>
@@ -23,27 +23,28 @@
       </form>
     </section>
 
-<section class="card">
-  <h2>Resultaat</h2>
+    <section class="card">
+      <h2>Resultaat</h2>
 
-  <div class="table-wrapper">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Verwacht op +7</th>
-          <th>Kopen</th>
-        </tr>
-      </thead>
-      <tbody id="boodschappen-body">
-        <tr><td colspan="3">Kies een datum en klik Bereken.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
+      <div class="table-wrapper">
+        <table class="table table-3col">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Verwacht op +7</th>
+              <th>Kopen</th>
+            </tr>
+          </thead>
+          <tbody id="boodschappen-body">
+            <tr><td colspan="3">Kies een datum en klik Bereken.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-
-    <p><a href="index.html">← Terug naar home</a></p>
+    <nav class="nav-footer">
+      <a class="nav-footer__link" href="index.html">← Home</a>
+    </nav>
   </main>
 
   <script type="module" src="boodschappen.js"></script>

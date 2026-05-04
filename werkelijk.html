@@ -8,7 +8,7 @@
 </head>
 <body>
   <main class="container">
-    <h1>Werkelijke voorraad</h1>
+    <h1 class="page-title">Werkelijke voorraad</h1>
 
     <section class="card">
       <h2>Tellijst (vandaag)</h2>
@@ -35,9 +35,14 @@
 
     <section class="card">
       <h2>Werkelijke voorraad</h2>
+      <p class="muted">
+        Per product zie je de laatste stand. Met «Alle regels» open je een pagina met elke database-regel voor dat product; daar kun je een regel direct wijzigen.
+        Met «Aanpassen» leg je hier juist een <em>nieuwe</em> meetregel vast (append-only).
+        Om alle regels van één product te wissen, gebruik onderaan «Verwijder alle regels».
+      </p>
 
       <div class="table-wrapper">
-        <table class="table table-4col">
+        <table class="table table-4col table--voorraad">
           <thead>
             <tr>
               <th>Product</th>
@@ -75,7 +80,26 @@
       </form>
     </section>
 
-    <p><a href="index.html">← Terug naar home</a></p>
+    <section class="card">
+      <h2>Alle regels voor een product verwijderen</h2>
+      <p class="muted">
+        Verwijdert <strong>alle</strong> database-rijen waarvan de productnaam overeenkomt (hoofdletters niet van belang).
+        Daarna kun je het product opnieuw toevoegen met de juiste waarden.
+      </p>
+      <form id="verwijder-product-form" class="form">
+        <input
+          type="text"
+          id="verwijder-product-naam"
+          placeholder="Productnaam (bijv. Melk)"
+          autocomplete="off"
+        />
+        <button type="submit" class="btn btn-ghost">Verwijder alle regels voor dit product</button>
+      </form>
+    </section>
+
+    <nav class="nav-footer">
+      <a class="nav-footer__link" href="index.html">← Home</a>
+    </nav>
   </main>
 
   <script type="module" src="werkelijk.js"></script>

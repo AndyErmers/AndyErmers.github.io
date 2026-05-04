@@ -1,8 +1,9 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-const SUPABASE_URL = "https://lbmtkzxoucwsniznvcjg.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_8gl1rTwsBMqpKPW1TTnUJA_FAOzBlcI";
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import {
+  supabase,
+  formatDatum,
+  escapeIlikeExact,
+  fetchAllRowsMatchingProductIlike,
+} from "./realiteit-shared.js";
 
 const tbody = document.getElementById("voorraad-body");
 const tellijstBody = document.getElementById("tellijst-body");
@@ -11,16 +12,8 @@ const form = document.getElementById("voorraad-form");
 const productInput = document.getElementById("product");
 const hoeveelheidInput = document.getElementById("hoeveelheid");
 
-function formatDatum(iso) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-}
+const verwijderForm = document.getElementById("verwijder-product-form");
+const verwijderNaamInput = document.getElementById("verwijder-product-naam");
 
 function todayKey() {
   const d = new Date();
@@ -269,7 +262,17 @@ function renderVoorraadTabel(latest) {
 
     const btnEdit = document.createElement("button");
     btnEdit.className = "btn";
-    btnEdit.textContent = "Bewerk";
+    btnEdit.textContent = "Aanpassen";
+
+    const linkAlle = document.createElement("a");
+    linkAlle.className = "btn btn-secondary";
+    linkAlle.href = `werkelijk-product.html?product=${encodeURIComponent(oldProduct)}`;
+    linkAlle.textContent = "Alle regels";
+
+    const btnRow = document.createElement("div");
+    btnRow.className = "btn-row";
+    btnRow.appendChild(linkAlle);
+    btnRow.appendChild(btnEdit);
 
     btnEdit.addEventListener("click", () => {
       const inputProduct = document.createElement("input");
@@ -298,14 +301,17 @@ function renderVoorraadTabel(latest) {
       btnCancel.className = "btn btn-ghost";
       btnCancel.textContent = "Annuleer";
 
-      tdActies.appendChild(btnSave);
-      tdActies.appendChild(btnCancel);
+      const actiesWrap = document.createElement("div");
+      actiesWrap.className = "btn-row";
+      actiesWrap.appendChild(btnSave);
+      actiesWrap.appendChild(btnCancel);
+      tdActies.appendChild(actiesWrap);
 
       btnCancel.addEventListener("click", () => {
         tdProduct.textContent = oldProduct;
         tdHoeveelheid.textContent = String(oldQty);
         tdActies.textContent = "";
-        tdActies.appendChild(btnEdit);
+        tdActies.appendChild(btnRow);
       });
 
       btnSave.addEventListener("click", async () => {
@@ -321,12 +327,9 @@ function renderVoorraadTabel(latest) {
           return;
         }
 
-        const productChanged = newProduct !== oldProduct;
-        const qtyChanged = newQty !== oldQty;
-const datumToSave = new Date().toISOString();
+        const datumToSave = new Date().toISOString();
 
-
-        // ✅ append-only: nieuwe regel toevoegen i.p.v. UPDATE
+        // append-only: nieuwe regel toevoegen i.p.v. UPDATE
         const { error: insertError } = await supabase
           .from("Realiteit")
           .insert({
@@ -345,7 +348,7 @@ const datumToSave = new Date().toISOString();
       });
     });
 
-    tdActies.appendChild(btnEdit);
+    tdActies.appendChild(btnRow);
 
     tr.appendChild(tdProduct);
     tr.appendChild(tdHoeveelheid);
@@ -399,6 +402,60 @@ function setDailyTellijst(list) {
 
 function normalizeProduct(p) {
   return (p ?? "").trim().toLowerCase();
+}
+
+const DELETE_BATCH = 500;
+
+async function verwijderAlleRijenVoorProduct(rawNaam) {
+  const naam = (rawNaam ?? "").trim();
+  if (!naam) {
+    alert("Vul een productnaam in.");
+    return false;
+  }
+
+  const pattern = escapeIlikeExact(naam);
+  let rows;
+  try {
+    rows = await fetchAllRowsMatchingProductIlike(pattern);
+  } catch (e) {
+    alert("Fout bij zoeken: " + (e?.message ?? String(e)));
+    console.error(e);
+    return false;
+  }
+
+  if (rows.length === 0) {
+    alert("Geen regels gevonden voor die naam.");
+    return false;
+  }
+
+  const uniekeNamen = [...new Set(rows.map((r) => (r.product ?? "").trim()).filter(Boolean))];
+  const namenTekst =
+    uniekeNamen.length <= 6
+      ? uniekeNamen.join(", ")
+      : `${uniekeNamen.slice(0, 6).join(", ")} … (+${uniekeNamen.length - 6} varianten)`;
+
+  const ok = confirm(
+    `Weet je het zeker?\n\n` +
+      `${rows.length} regel(s) worden verwijderd.\n` +
+      `Productnamen in de database: ${namenTekst}\n\n` +
+      `Dit kan niet ongedaan worden gemaakt.`
+  );
+  if (!ok) return false;
+
+  const ids = rows.map((r) => r.id).filter(Boolean);
+  for (let i = 0; i < ids.length; i += DELETE_BATCH) {
+    const batch = ids.slice(i, i + DELETE_BATCH);
+    const { error: delErr } = await supabase.from("Realiteit").delete().in("id", batch);
+    if (delErr) {
+      alert("Fout bij verwijderen: " + delErr.message);
+      console.error("Supabase delete error:", delErr);
+      await laadVoorraad();
+      return false;
+    }
+  }
+
+  await laadVoorraad();
+  return true;
 }
 
 function lastCountedStorageKey(productKey) {
@@ -508,5 +565,13 @@ form.addEventListener("submit", async (e) => {
   form.reset();
   await laadVoorraad();
 });
+
+if (verwijderForm && verwijderNaamInput) {
+  verwijderForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const ok = await verwijderAlleRijenVoorProduct(verwijderNaamInput.value);
+    if (ok) verwijderNaamInput.value = "";
+  });
+}
 
 laadVoorraad();

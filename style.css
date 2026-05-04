@@ -1,19 +1,60 @@
+:root {
+  --color-bg-top: #f8fafc;
+  --color-bg-bottom: #e8edf5;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-primary: #2563eb;
+  --color-primary-dark: #1e40af;
+  --color-border: #d0d5dd;
+  --radius-card: 14px;
+  --radius-control: 10px;
+  --shadow-sm: 0 1px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 20px rgba(15, 23, 42, 0.08);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 body {
-  background: linear-gradient(180deg, #f8fafc, #eef2f7);
-  color: #0f172a;
-  font-family: system-ui, Arial;
+  background: linear-gradient(180deg, var(--color-bg-top), var(--color-bg-bottom));
+  color: var(--color-text);
+  font-family: var(--font);
+  line-height: 1.5;
   margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page-title {
+  font-size: 1.65rem;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 0 0.35em;
+  text-align: center;
+}
+
+main.container > h1.page-title + .muted {
+  margin-top: 0;
+  text-align: center;
+}
+
+a.btn {
+  box-sizing: border-box;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .btn {
   background: white;
-  border: 1px solid #d0d5dd;
-  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  color: var(--color-text);
   cursor: pointer;
-  margin-right: 8px;
-  padding: 8px 12px;
-  transition: all 0.15s ease;
-  white-space: nowrap; /* voorkomt rare knip bij knoppen */
+  font-family: inherit;
+  font-size: 0.9375rem;
+  margin: 0;
+  padding: 8px 14px;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn:hover {
@@ -24,10 +65,21 @@ body {
   background: #f3f4f6;
 }
 
+.btn-secondary {
+  background: #fff;
+  border: 1px solid #93c5fd;
+  color: var(--color-primary-dark);
+}
+
+.btn-secondary:hover {
+  background: #eff6ff;
+  border-color: var(--color-primary);
+}
+
 .btn-primary {
-  background: linear-gradient(180deg, #2563eb, #1e40af);
+  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-dark));
   border: none;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
   color: white;
 }
 
@@ -36,26 +88,49 @@ body {
 }
 
 .card {
-  background: linear-gradient(180deg, #ffffff, #f9fafb);
-  border-left: 5px solid #2563eb;
-  border-radius: 12px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
   margin: 20px 0;
-  padding: 18px 16px;
+  padding: 20px 18px 22px;
   text-align: left;
+}
+
+.card > h2 {
+  color: #0f172a;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 10px;
 }
 
 .container {
   margin: 0 auto;
-  max-width: 800px;
-  padding: 40px 20px;
+  max-width: 880px;
+  padding: 36px 20px 48px;
+  text-align: left;
+}
+
+.container--home {
   text-align: center;
+}
+
+.container--home > p {
+  color: var(--color-muted);
+  font-size: 1.05rem;
+  margin-bottom: 8px;
 }
 
 .form {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.container--home .form {
   justify-content: center;
 }
 
@@ -106,18 +181,21 @@ body {
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 30px;
+  gap: 14px;
+  margin: 28px auto 0;
+  max-width: 440px;
+  width: 100%;
 }
 
 .menu-button {
-  background: linear-gradient(180deg, #2563eb, #1e40af);
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-dark));
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-md);
   color: white;
   display: block;
-  font-size: 18px;
-  padding: 18px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 18px 20px;
   text-decoration: none;
   transition: transform 0.1s ease, filter 0.1s ease;
 }
@@ -128,8 +206,79 @@ body {
 }
 
 .muted {
-  color: #667085;
-  margin-top: -6px;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  margin: 0 0 12px;
+}
+
+.btn-row {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.table td .btn-row {
+  white-space: normal;
+}
+
+.nav-footer {
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  justify-content: center;
+  margin-top: 36px;
+  padding-top: 22px;
+}
+
+.nav-footer__link {
+  color: var(--color-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nav-footer__link:hover {
+  text-decoration: underline;
+}
+
+.input-inline {
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
+.input-inline--wide {
+  min-width: 160px;
+}
+
+.table-product-rows {
+  table-layout: auto;
+}
+
+.table-product-rows th:nth-child(1),
+.table-product-rows td:nth-child(1) {
+  min-width: 170px;
+  white-space: nowrap;
+}
+
+.table-product-rows th:nth-child(4),
+.table-product-rows td:nth-child(4) {
+  min-width: 200px;
+}
+
+.table--voorraad.table-4col th:nth-child(1),
+.table--voorraad.table-4col td:nth-child(1) {
+  width: 32%;
+}
+
+.table--voorraad.table-4col th:nth-child(4),
+.table--voorraad.table-4col td:nth-child(4) {
+  min-width: 200px;
+  width: 32%;
+  white-space: normal;
 }
 
 section.card + h1,
@@ -152,11 +301,12 @@ section.card + h2 {
 /* standaard tabel: GEEN fixed column widths hier (want sommige tabellen hebben 3, andere 4 kolommen) */
 .table {
   background: white;
+  border: 1px solid #e2e8f0;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 12px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
-  margin: 20px 0 40px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  margin: 16px 0 8px;
   width: 100%;
   max-width: 100%;
 
@@ -246,6 +396,34 @@ section.card + h2 {
   text-align: right;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* 5 kolommen theoretisch */
+.table-theo {
+  table-layout: auto;
+}
+
+.table-theo th:nth-child(1),
+.table-theo td:nth-child(1) {
+  min-width: 22%;
+}
+
+.table-theo th:nth-child(2),
+.table-theo td:nth-child(2),
+.table-theo th:nth-child(3),
+.table-theo td:nth-child(3),
+.table-theo th:nth-child(4),
+.table-theo td:nth-child(4),
+.table-theo th:nth-child(5),
+.table-theo td:nth-child(5) {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table-theo th:nth-child(1),
+.table-theo td:nth-child(1) {
+  text-align: left;
 }
 
 /* 4 kolommen (tellijst/voorraad: Product / ... / Actie) */
