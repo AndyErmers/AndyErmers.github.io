@@ -185,7 +185,7 @@ function renderTellijstFromKeys(productKeys, latestMap) {
       input.step = "0.01";
       input.min = "0";
       input.placeholder = "0";
-      input.style.width = "110px";
+      input.className = "input-tellijst-qty";
       tdGeteld.appendChild(input);
 
       const btn = document.createElement("button");
