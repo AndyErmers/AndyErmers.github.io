@@ -11,11 +11,9 @@
   <main class="container">
     <h1 class="page-title">Werkelijke voorraad</h1>
 
-    <section class="card">
+    <section class="card card--tight">
       <h2>Tellijst (vandaag)</h2>
-      <p class="muted">
-        Elke dag worden 5 producten gekozen op basis van wie het langst niet geteld is.
-      </p>
+      <p class="muted muted--tight">5 producten die het langst niet geteld zijn.</p>
 
       <div class="table-wrapper">
         <table class="table table-compact table-4col">
@@ -34,13 +32,8 @@
       </div>
     </section>
 
-    <section class="card">
-      <h2>Werkelijke voorraad</h2>
-      <p class="muted">
-        Laatste stand per product.
-        <strong>Alle regels</strong> toont de historie;
-        <strong>Aanpassen</strong> voegt een nieuwe meting toe.
-      </p>
+    <section class="card card--tight">
+      <h2>Voorraad</h2>
 
       <div class="table-wrapper">
         <table class="table table-4col table--voorraad">
@@ -59,9 +52,8 @@
       </div>
     </section>
 
-    <section class="card">
-      <h2>Nieuwe voorraad toevoegen</h2>
-
+    <details class="card card--tight card--details">
+      <summary>Product toevoegen</summary>
       <form id="voorraad-form" class="form">
         <input
           type="text"
@@ -79,13 +71,12 @@
         />
         <button type="submit" class="btn btn-primary">Toevoegen</button>
       </form>
-    </section>
+    </details>
 
-    <section class="card">
-      <h2>Alle regels voor een product verwijderen</h2>
-      <p class="muted">
-        Verwijdert <strong>alle</strong> database-rijen waarvan de productnaam overeenkomt (hoofdletters niet van belang).
-        Daarna kun je het product opnieuw toevoegen met de juiste waarden.
+    <details class="card card--tight card--details">
+      <summary>Alle regels van een product verwijderen</summary>
+      <p class="muted muted--tight">
+        Verwijdert alle rijen met die productnaam (hoofdletters maken niet uit).
       </p>
       <form id="verwijder-product-form" class="form">
         <input
@@ -94,9 +85,9 @@
           placeholder="Productnaam (bijv. Melk)"
           autocomplete="off"
         />
-        <button type="submit" class="btn btn-ghost">Verwijder alle regels voor dit product</button>
+        <button type="submit" class="btn btn-ghost">Verwijder alle regels</button>
       </form>
-    </section>
+    </details>
 
     <nav class="nav-footer">
       <a class="nav-footer__link" href="index.html">← Home</a>

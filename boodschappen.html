@@ -11,21 +11,14 @@
   <main class="container">
     <h1 class="page-title">Boodschappenlijst</h1>
 
-    <section class="card">
-      <h2>Berekenen</h2>
-      <p class="muted">
-        Kies de dag dat je boodschappen doet. We voorspellen de voorraad op (die dag + 7 dagen).
-        Alles wat dan 0 of lager is, komt op de lijst.
-      </p>
-
-      <form id="boodschappen-form" class="form">
+    <section class="card card--tight">
+      <form id="boodschappen-form" class="form form--inline">
         <input type="date" id="boodschappen-datum" required />
         <button type="submit" class="btn btn-primary">Bereken</button>
       </form>
-    </section>
-
-    <section class="card">
-      <h2>Resultaat</h2>
+      <p class="muted muted--tight">
+        Producten die op boodschapdag + 7 dagen op ≤ 0 staan.
+      </p>
 
       <div class="table-wrapper">
         <table class="table table-3col">
