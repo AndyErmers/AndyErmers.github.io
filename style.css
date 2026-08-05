@@ -1040,6 +1040,25 @@ section.card + h2 {
   font-weight: 600;
 }
 
+.theo-copy-status--error {
+  color: #b45309;
+}
+
+.theo-copy-fallback {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: #f8fafc;
+  color: var(--color-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+
 @media (max-width: 720px) {
   .theo-actions {
     flex-direction: column;
