@@ -177,8 +177,8 @@ function renderTellijstFromKeys(productKeys, latestMap) {
     const alreadyCounted = isProductGeteld(productName);
 
     if (alreadyCounted) {
-      tdGeteld.textContent = "✔";
-      tdActie.textContent = "Geteld";
+      tdGeteld.textContent = "";
+      tdActie.textContent = "Geteld ✔";
       tdActie.classList.add("geteld");
     } else {
       const input = document.createElement("input");

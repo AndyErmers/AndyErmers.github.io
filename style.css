@@ -35,11 +35,11 @@ body {
 }
 
 .page-title {
-  font-size: 1.65rem;
+  font-size: 1.45rem;
   font-weight: 750;
   letter-spacing: -0.03em;
   line-height: 1.2;
-  margin: 0 0 0.35em;
+  margin: 0 0 0.25em;
   text-align: center;
 }
 
@@ -105,23 +105,54 @@ a.btn {
   border-left: 4px solid var(--color-primary);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
-  margin: 20px 0;
-  padding: 20px 18px 22px;
+  margin: 12px 0;
+  padding: 14px 14px 16px;
   text-align: left;
+}
+
+.card--tight {
+  margin: 10px 0;
+  padding: 12px 12px 14px;
+}
+
+.card--details > summary {
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  list-style: none;
+  padding: 2px 0;
+}
+
+.card--details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.card--details > summary::before {
+  color: var(--color-primary);
+  content: "+ ";
+  font-weight: 700;
+}
+
+.card--details[open] > summary {
+  margin-bottom: 10px;
+}
+
+.card--details[open] > summary::before {
+  content: "− ";
 }
 
 .card > h2 {
   color: #0f172a;
-  font-size: 1.125rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  margin: 0 0 10px;
+  margin: 0 0 6px;
 }
 
 .container {
   box-sizing: border-box;
   margin: 0 auto;
   max-width: 880px;
-  padding: 36px 20px calc(48px + env(safe-area-inset-bottom));
+  padding: 20px 16px calc(28px + env(safe-area-inset-bottom));
   text-align: left;
   width: 100%;
 }
@@ -225,9 +256,18 @@ a.btn {
 
 .muted {
   color: var(--color-muted);
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  margin: 0 0 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0 0 8px;
+}
+
+.muted--tight {
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.form--inline {
+  margin-bottom: 8px;
 }
 
 .btn-row {
@@ -247,8 +287,8 @@ a.btn {
   flex-wrap: wrap;
   gap: 12px 28px;
   justify-content: center;
-  margin-top: 36px;
-  padding-top: 22px;
+  margin-top: 20px;
+  padding-top: 14px;
 }
 
 .nav-footer__link {
@@ -324,7 +364,7 @@ section.card + h2 {
   border-spacing: 0;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
-  margin: 16px 0 8px;
+  margin: 8px 0 0;
   width: 100%;
   max-width: 100%;
 
@@ -343,7 +383,7 @@ section.card + h2 {
 .table td,
 .table th {
   border-bottom: 1px solid #eee;
-  padding: 12px 14px;
+  padding: 8px 10px;
   text-align: left;
   vertical-align: middle;
 
@@ -491,38 +531,58 @@ section.card + h2 {
 
 /* =========================
    MOBIEL / SMALLE TABLETS
+   Compacte rijen i.p.v. hoge kaarten
    ========================= */
 @media (max-width: 720px) {
   .page-title {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     padding: 0 2px;
   }
 
   .container {
-    padding: 18px 14px calc(36px + env(safe-area-inset-bottom));
+    padding: 12px 10px calc(20px + env(safe-area-inset-bottom));
   }
 
   .container--home {
-    padding-top: 28px;
+    padding-top: 22px;
   }
 
-  .card {
-    margin: 14px 0;
-    padding: 16px 14px 18px;
+  .card,
+  .card--tight {
+    margin: 8px 0;
+    padding: 10px 10px 12px;
   }
 
   .card > h2 {
-    font-size: 1.05rem;
+    font-size: 0.98rem;
+    margin-bottom: 4px;
   }
 
-  .muted {
-    font-size: 0.9rem;
+  .muted,
+  .muted--tight {
+    font-size: 0.8rem;
+    margin-bottom: 6px;
   }
 
   .form {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .form--inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .form--inline input {
+    flex: 1 1 9rem;
+    min-width: 0;
+  }
+
+  .form--inline .btn {
+    flex: 0 0 auto;
   }
 
   .form input,
@@ -532,33 +592,40 @@ section.card + h2 {
     max-width: 100%;
   }
 
+  .form--inline input,
+  .form--inline .btn {
+    width: auto;
+  }
+
   .form input {
-    min-height: 48px;
+    min-height: 44px;
   }
 
   .form button,
   .form .btn {
-    min-height: 48px;
+    min-height: 44px;
   }
 
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
-    padding: 12px 14px;
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
     white-space: normal;
     text-align: center;
   }
 
   a.btn {
-    line-height: 1.3;
+    line-height: 1.25;
   }
 
+  /* Acties naast elkaar i.p.v. gestapeld */
   .btn-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
     width: 100%;
   }
 
@@ -566,36 +633,40 @@ section.card + h2 {
   .btn-row a.btn {
     margin: 0;
     width: 100%;
+    min-height: 40px;
+    padding: 8px 6px;
+    font-size: 0.85rem;
   }
 
   .menu {
-    gap: 12px;
-    margin-top: 24px;
+    gap: 10px;
+    margin-top: 18px;
   }
 
   .menu-button {
-    padding: 18px 18px;
-    min-height: 56px;
-    font-size: 1.08rem;
+    padding: 14px 16px;
+    min-height: 48px;
+    font-size: 1rem;
   }
 
   .nav-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    margin-top: 28px;
-    padding-top: 18px;
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 12px;
   }
 
   .nav-footer__link {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
-    padding: 10px 12px;
+    min-height: 40px;
+    padding: 8px 14px;
     border-radius: var(--radius-control);
     background: rgba(255, 255, 255, 0.7);
     border: 1px solid #e2e8f0;
+    font-size: 0.9rem;
   }
 
   .nav-footer__link:hover {
@@ -603,7 +674,6 @@ section.card + h2 {
     background: #fff;
   }
 
-  /* Tabellen → gestapelde kaarten (geen horizontaal scrollen) */
   .table-wrapper {
     margin: 0;
     max-width: 100%;
@@ -625,7 +695,7 @@ section.card + h2 {
     border: none;
     background: transparent;
     box-shadow: none;
-    margin: 8px 0 0;
+    margin: 4px 0 0;
   }
 
   .table thead {
@@ -635,20 +705,16 @@ section.card + h2 {
   .table tbody {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
   }
 
   .table tbody tr {
     display: block;
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    padding: 12px 14px 10px;
-  }
-
-  .table-compact tbody tr {
-    padding: 12px 14px 12px;
+    border-radius: 10px;
+    box-shadow: none;
+    padding: 8px 10px;
   }
 
   .table tbody tr:hover {
@@ -665,98 +731,240 @@ section.card + h2 {
     font-variant-numeric: tabular-nums;
     border-bottom: none;
     padding: 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .table td {
-    display: grid;
-    grid-template-columns: minmax(7.5rem, 36%) minmax(0, 1fr);
-    gap: 6px 10px;
-    align-items: center;
-    padding: 7px 0;
-  }
-
-  .table td + td {
-    border-top: 1px solid #f1f5f9;
+    display: block;
   }
 
   .table td::before {
-    content: attr(data-label);
-    color: var(--color-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    line-height: 1.25;
+    content: none;
   }
 
   .table td.cell-primary {
-    display: block;
-    font-size: 1.08rem;
-    font-weight: 750;
+    font-size: 0.98rem;
+    font-weight: 700;
     letter-spacing: -0.02em;
-    padding: 0 0 10px;
-    margin-bottom: 2px;
-    border-bottom: 1px solid #eef2f7;
-  }
-
-  .table td.cell-primary + td {
-    border-top: none;
-  }
-
-  .table td.cell-primary::before {
-    display: none;
+    padding: 0;
+    margin: 0;
+    border: none;
   }
 
   .table td:last-child {
-    display: block;
     white-space: normal;
-    vertical-align: top;
-    padding-top: 10px;
-    margin-top: 2px;
-    border-top: 1px solid #eef2f7;
   }
 
-  .table td:last-child::before {
-    display: block;
-    margin-bottom: 6px;
+  /* ---- Tellijst: naam+huidig, dan input+knop ---- */
+  .table-compact tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name qty"
+      "input action";
+    gap: 6px 8px;
+    align-items: center;
+    padding: 8px 10px;
   }
 
-  /* Geen "Actie"-label boven knoppen of "Geteld"; wel label bij cijfer-resultaten */
-  .table td:last-child:has(.btn)::before,
-  .table td:last-child:has(.btn-row)::before,
-  .table td:last-child.geteld::before,
-  .table td:last-child:not([data-label])::before,
-  .table td.cell-primary:last-child::before {
+  .table-compact td.cell-primary {
+    grid-area: name;
+  }
+
+  .table-compact td[data-label="Huidig"] {
+    grid-area: qty;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .table-compact td[data-label="Huidig"]::before {
+    content: "nu ";
+    font-weight: 500;
+  }
+
+  .table-compact td[data-label="Geteld"] {
+    grid-area: input;
+  }
+
+  .table-compact td[data-label="Geteld"]:empty {
     display: none;
   }
 
-  .table td:last-child:has(.btn),
-  .table td:last-child:has(.btn-row),
-  .table td:last-child.geteld {
-    border-top: none;
-    padding-top: 8px;
+  .table-compact td[data-label="Geteld"]::before {
+    content: none;
   }
 
-  /* Belangrijkste getal rechts/prominent (Theoretisch nu, Kopen, …) */
-  .table-theo td:last-child,
-  .table-3col td:last-child {
+  .table-compact td[data-label="Actie"] {
+    grid-area: action;
+  }
+
+  .table-compact td[data-label="Actie"] .btn {
+    width: auto;
+    min-width: 5.5rem;
+    min-height: 44px;
+  }
+
+  .table-compact td.geteld {
+    grid-area: input / input / action / action;
+    color: #16a34a;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  /* ---- Voorraad: naam+qty, datum, knoppen naast elkaar ---- */
+  .table--voorraad tbody tr {
     display: grid;
-    grid-template-columns: minmax(7.5rem, 36%) minmax(0, 1fr);
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
     align-items: baseline;
+    padding: 8px 10px;
   }
 
-  .table-theo td:last-child::before,
-  .table-3col td:last-child::before {
-    display: block;
-    margin-bottom: 0;
+  .table--voorraad td.cell-primary {
+    grid-column: 1;
+    grid-row: 1;
   }
 
-  .table-theo td:last-child,
-  .table-3col td:last-child {
-    font-size: 1.15rem;
+  .table--voorraad td[data-label="Hoeveelheid"] {
+    grid-column: 2;
+    grid-row: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .table--voorraad td[data-label="Datum"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  .table--voorraad td[data-label="Acties"] {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    padding-top: 4px;
+  }
+
+  /* ---- Theoretisch: naam + nu, meta op 1 regel ---- */
+  .table-theo tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.35rem;
+    row-gap: 2px;
+    padding: 7px 10px;
+  }
+
+  .table-theo td.cell-primary {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .table-theo td:last-child {
+    flex: 0 0 auto;
+    font-size: 1.05rem;
     font-weight: 750;
     color: var(--color-primary-dark);
+  }
+
+  .table-theo td:not(.cell-primary):not(:last-child) {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    order: 3;
+  }
+
+  .table-theo td:not(.cell-primary):not(:last-child)::before {
+    content: attr(data-label) " ";
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  .table-theo td:not(.cell-primary):not(:last-child):not(:nth-last-child(2))::after {
+    content: "·";
+    margin-left: 0.3rem;
+    opacity: 0.45;
+  }
+
+  /* ---- Boodschappen: naam + kopen, verwacht eronder ---- */
+  .table-3col tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    align-items: baseline;
+    padding: 7px 10px;
+  }
+
+  .table-3col td.cell-primary {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-3col td:last-child {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.05rem;
+    font-weight: 750;
+    color: var(--color-primary-dark);
+    text-align: right;
+  }
+
+  .table-3col td[data-label="Verwacht op +7"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  .table-3col td[data-label="Verwacht op +7"]::before {
+    content: "verwacht ";
+    font-weight: 600;
+  }
+
+  /* ---- Productregels ---- */
+  .table-product-rows tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    padding: 8px 10px;
+  }
+
+  .table-product-rows td.cell-primary {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.9rem;
+  }
+
+  .table-product-rows td[data-label="Hoeveelheid"] {
+    grid-column: 2;
+    grid-row: 1;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .table-product-rows td[data-label="Product"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  .table-product-rows td[data-label="Acties"] {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    padding-top: 4px;
+  }
+
+  .table-product-rows td[data-label="Acties"] .btn {
+    width: 100%;
   }
 
   /* Lege / statusregels */
@@ -765,16 +973,13 @@ section.card + h2 {
     text-align: center;
     color: var(--color-muted);
     font-weight: 500;
-    padding: 18px 8px;
+    padding: 12px 8px;
     border: none;
-  }
-
-  .table td[colspan]::before {
-    content: none;
-    display: none;
+    grid-column: 1 / -1;
   }
 
   .table tbody tr:has(td[colspan]) {
+    display: block;
     background: #f8fafc;
     box-shadow: none;
   }
@@ -782,7 +987,7 @@ section.card + h2 {
   .table td input {
     min-width: 0;
     width: 100%;
-    min-height: 48px;
+    min-height: 44px;
     font-size: 16px;
   }
 
@@ -796,30 +1001,8 @@ section.card + h2 {
     width: 100%;
   }
 
-  /* Tellijst: input + knop duidelijk als actieblok */
-  .table-compact td[data-label="Geteld"] {
-    display: block;
-  }
-
-  .table-compact td[data-label="Geteld"]::before {
-    display: block;
-    margin-bottom: 6px;
-  }
-
-  .table-compact td[data-label="Actie"] .btn,
-  .table-compact td[data-label="Actie"] {
-    width: 100%;
-  }
-
-  .table-compact td.geteld,
-  .table td.geteld {
-    color: #16a34a;
-    font-weight: 700;
-    font-size: 1.05rem;
-  }
-
   .geteld {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
   }
 }
 
