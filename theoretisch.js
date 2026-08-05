@@ -8,6 +8,7 @@ import {
 const tbody = document.getElementById("theo-body");
 const copyBtn = document.getElementById("theo-copy-btn");
 const copyStatus = document.getElementById("theo-copy-status");
+const copyFallback = document.getElementById("theo-copy-fallback");
 
 /** @type {string} */
 let copyText = "";
@@ -16,35 +17,81 @@ function round2(n) {
   return Math.round(n * 100) / 100;
 }
 
-function setCopyStatus(msg) {
-  if (copyStatus) copyStatus.textContent = msg;
+function setCopyStatus(msg, ok = true) {
+  if (!copyStatus) return;
+  copyStatus.textContent = msg;
+  copyStatus.classList.toggle("theo-copy-status--error", !ok);
+}
+
+function hideFallback() {
+  if (!copyFallback) return;
+  copyFallback.hidden = true;
+  copyFallback.value = "";
+}
+
+function showFallbackForManualCopy() {
+  if (!copyFallback) return;
+  copyFallback.hidden = false;
+  copyFallback.value = copyText;
+  copyFallback.focus();
+  copyFallback.select();
+  copyFallback.setSelectionRange(0, copyFallback.value.length);
+  setCopyStatus("Selecteer de tekst hieronder en kopieer handmatig.", false);
+}
+
+/** iOS-/Android-vriendelijke execCommand-fallback */
+function copyViaExecCommand(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.setAttribute("aria-hidden", "true");
+  // Niet off-screen: iOS kopieert anders vaak niet
+  ta.style.cssText =
+    "position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;outline:none;box-shadow:none;background:transparent;opacity:0.01;z-index:-1;";
+  document.body.appendChild(ta);
+
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+
+  document.body.removeChild(ta);
+  return ok;
 }
 
 async function copyListToClipboard() {
   if (!copyText) {
-    setCopyStatus("Geen lijst om te kopiëren.");
+    setCopyStatus("Geen lijst om te kopiëren.", false);
     return;
   }
 
-  try {
-    if (navigator.clipboard?.writeText) {
+  hideFallback();
+
+  // 1) Moderne Clipboard API
+  if (navigator.clipboard?.writeText) {
+    try {
       await navigator.clipboard.writeText(copyText);
-    } else {
-      const ta = document.createElement("textarea");
-      ta.value = copyText;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.left = "-9999px";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
+      setCopyStatus("Gekopieerd ✓", true);
+      return;
+    } catch (err) {
+      console.warn("clipboard.writeText mislukt, probeer fallback:", err);
     }
-    setCopyStatus("Gekopieerd ✓");
-  } catch (err) {
-    console.error(err);
-    setCopyStatus("Kopiëren mislukt.");
   }
+
+  // 2) execCommand-fallback (werkt vaak beter op oudere/mobile browsers)
+  if (copyViaExecCommand(copyText)) {
+    setCopyStatus("Gekopieerd ✓", true);
+    return;
+  }
+
+  // 3) Laatste redmiddel: zichtbaar tekstveld om handmatig te kopiëren
+  showFallbackForManualCopy();
 }
 
 async function loadTheoretisch() {
@@ -52,6 +99,7 @@ async function loadTheoretisch() {
   copyText = "";
   if (copyBtn) copyBtn.disabled = true;
   setCopyStatus("");
+  hideFallback();
 
   let rows;
   try {
@@ -117,7 +165,20 @@ async function loadTheoretisch() {
 }
 
 if (copyBtn) {
-  copyBtn.addEventListener("click", copyListToClipboard);
+  // Gebruik pointerup + click voor betere mobiele ondersteuning;
+  // voorkom dubbele actie met een korte lock.
+  let copying = false;
+  const onCopy = async (e) => {
+    e.preventDefault();
+    if (copying || copyBtn.disabled) return;
+    copying = true;
+    try {
+      await copyListToClipboard();
+    } finally {
+      copying = false;
+    }
+  };
+  copyBtn.addEventListener("click", onCopy);
 }
 
 loadTheoretisch();
