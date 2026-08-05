@@ -100,7 +100,7 @@ function isDailyTellijstComplete() {
   return dailyKeys.every((k) => isProductGeteld(k));
 }
 
-async function cleanupOldestRowsPercentage(pct = 0.03) {
+async function cleanupOldestRowsPercentage(pct = 0.10) {
   // 1) totaal aantal rijen bepalen
   const { count, error: countError } = await supabase
     .from("Realiteit")
@@ -215,9 +215,9 @@ function renderTellijstFromKeys(productKeys, latestMap) {
 markProductGeteld(productName);
 setLastCountedNow(normalizeProduct(productName));
 
-// ✅ als tellijst compleet is: 1x per dag 3% oudste rijen verwijderen
+// ✅ als tellijst compleet is: 1x per dag 10% oudste rijen verwijderen
 if (!isCleanupDoneToday() && isDailyTellijstComplete()) {
-  await cleanupOldestRowsPercentage(0.03);
+  await cleanupOldestRowsPercentage(0.10);
   markCleanupDoneToday();
 }
 
