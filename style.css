@@ -644,7 +644,11 @@ section.card + h2 {
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
-    padding: 12px 14px;
+    padding: 12px 14px 10px;
+  }
+
+  .table-compact tbody tr {
+    padding: 12px 14px 12px;
   }
 
   .table tbody tr:hover {
@@ -708,19 +712,51 @@ section.card + h2 {
     display: block;
     white-space: normal;
     vertical-align: top;
-    padding-top: 12px;
-    margin-top: 4px;
+    padding-top: 10px;
+    margin-top: 2px;
     border-top: 1px solid #eef2f7;
   }
 
   .table td:last-child::before {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
+  /* Geen "Actie"-label boven knoppen of "Geteld"; wel label bij cijfer-resultaten */
+  .table td:last-child:has(.btn)::before,
+  .table td:last-child:has(.btn-row)::before,
+  .table td:last-child.geteld::before,
   .table td:last-child:not([data-label])::before,
   .table td.cell-primary:last-child::before {
     display: none;
+  }
+
+  .table td:last-child:has(.btn),
+  .table td:last-child:has(.btn-row),
+  .table td:last-child.geteld {
+    border-top: none;
+    padding-top: 8px;
+  }
+
+  /* Belangrijkste getal rechts/prominent (Theoretisch nu, Kopen, …) */
+  .table-theo td:last-child,
+  .table-3col td:last-child {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 36%) minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .table-theo td:last-child::before,
+  .table-3col td:last-child::before {
+    display: block;
+    margin-bottom: 0;
+  }
+
+  .table-theo td:last-child,
+  .table-3col td:last-child {
+    font-size: 1.15rem;
+    font-weight: 750;
+    color: var(--color-primary-dark);
   }
 
   /* Lege / statusregels */
@@ -762,11 +798,24 @@ section.card + h2 {
 
   /* Tellijst: input + knop duidelijk als actieblok */
   .table-compact td[data-label="Geteld"] {
-    align-items: start;
+    display: block;
   }
 
-  .table-compact td[data-label="Actie"] .btn {
+  .table-compact td[data-label="Geteld"]::before {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .table-compact td[data-label="Actie"] .btn,
+  .table-compact td[data-label="Actie"] {
     width: 100%;
+  }
+
+  .table-compact td.geteld,
+  .table td.geteld {
+    color: #16a34a;
+    font-weight: 700;
+    font-size: 1.05rem;
   }
 
   .geteld {
