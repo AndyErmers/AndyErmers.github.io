@@ -15,6 +15,8 @@
 
 html {
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -23,8 +25,13 @@ body {
   font-family: var(--font);
   line-height: 1.5;
   margin: 0;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: rgba(37, 99, 235, 0.12);
   overflow-x: hidden;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .page-title {
@@ -114,7 +121,7 @@ a.btn {
   box-sizing: border-box;
   margin: 0 auto;
   max-width: 880px;
-  padding: 36px 20px 48px;
+  padding: 36px 20px calc(48px + env(safe-area-inset-bottom));
   text-align: left;
   width: 100%;
 }
@@ -482,25 +489,40 @@ section.card + h2 {
   white-space: normal;
 }
 
-/* mobiel en smalle tablets */
-@media (max-width: 640px) {
+/* =========================
+   MOBIEL / SMALLE TABLETS
+   ========================= */
+@media (max-width: 720px) {
   .page-title {
-    font-size: 1.35rem;
-    padding: 0 4px;
+    font-size: 1.4rem;
+    padding: 0 2px;
   }
 
   .container {
-    padding: 20px 12px 40px;
+    padding: 18px 14px calc(36px + env(safe-area-inset-bottom));
+  }
+
+  .container--home {
+    padding-top: 28px;
   }
 
   .card {
-    margin: 16px 0;
-    padding: 16px 12px 18px;
+    margin: 14px 0;
+    padding: 16px 14px 18px;
+  }
+
+  .card > h2 {
+    font-size: 1.05rem;
+  }
+
+  .muted {
+    font-size: 0.9rem;
   }
 
   .form {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
   .form input,
@@ -510,7 +532,12 @@ section.card + h2 {
     max-width: 100%;
   }
 
-  .form button {
+  .form input {
+    min-height: 48px;
+  }
+
+  .form button,
+  .form .btn {
     min-height: 48px;
   }
 
@@ -519,7 +546,7 @@ section.card + h2 {
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    padding: 10px 12px;
+    padding: 12px 14px;
     white-space: normal;
     text-align: center;
   }
@@ -531,6 +558,7 @@ section.card + h2 {
   .btn-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
     width: 100%;
   }
 
@@ -540,98 +568,258 @@ section.card + h2 {
     width: 100%;
   }
 
+  .menu {
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .menu-button {
+    padding: 18px 18px;
+    min-height: 56px;
+    font-size: 1.08rem;
+  }
+
+  .nav-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 18px;
+  }
+
+  .nav-footer__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: var(--radius-control);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #e2e8f0;
+  }
+
+  .nav-footer__link:hover {
+    text-decoration: none;
+    background: #fff;
+  }
+
+  /* Tabellen → gestapelde kaarten (geen horizontaal scrollen) */
   .table-wrapper {
-    margin-left: -8px;
-    margin-right: -8px;
-    max-width: calc(100% + 16px);
-    width: calc(100% + 16px);
+    margin: 0;
+    max-width: 100%;
+    width: 100%;
+    overflow: visible;
   }
 
-  .table {
-    min-width: min(100%, 520px);
-  }
-
+  .table,
   .table-4col,
-  .table-3col {
+  .table-3col,
+  .table-theo,
+  .table-product-rows,
+  .table--voorraad {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
     table-layout: auto;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    margin: 8px 0 0;
   }
 
-  .table-4col th:nth-child(n),
-  .table-4col td:nth-child(n),
-  .table-3col th:nth-child(n),
-  .table-3col td:nth-child(n) {
-    width: auto;
-    white-space: normal;
+  .table thead {
+    display: none;
   }
 
-  .table-4col th:nth-child(2),
-  .table-4col td:nth-child(2),
-  .table-4col th:nth-child(3),
-  .table-4col td:nth-child(3),
-  .table-3col th:nth-child(2),
-  .table-3col td:nth-child(2),
-  .table-3col th:nth-child(3),
-  .table-3col td:nth-child(3) {
-    text-align: left;
-    font-variant-numeric: tabular-nums;
+  .table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .table td:last-child {
-    white-space: normal;
-    vertical-align: top;
+  .table tbody tr {
+    display: block;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 12px 14px 10px;
   }
 
-  .table--voorraad.table-4col th:nth-child(4),
-  .table--voorraad.table-4col td:nth-child(4) {
-    min-width: 0;
+  .table-compact tbody tr {
+    padding: 12px 14px 12px;
   }
 
-  .table-product-rows th:nth-child(1),
-  .table-product-rows td:nth-child(1) {
-    min-width: 0;
-    white-space: normal;
-  }
-
-  .table-product-rows th:nth-child(4),
-  .table-product-rows td:nth-child(4) {
-    min-width: 0;
-  }
-
-  .table-theo th:nth-child(n),
-  .table-theo td:nth-child(n) {
-    white-space: normal;
-    text-align: left;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .table-theo th:nth-child(1),
-  .table-theo td:nth-child(1) {
-    min-width: 0;
+  .table tbody tr:hover {
+    background: #fff;
   }
 
   .table td,
   .table th {
-    padding: 10px 8px;
-    font-size: 0.9375rem;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none;
+    white-space: normal;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+    border-bottom: none;
+    padding: 0;
+    font-size: 1rem;
+  }
+
+  .table td {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 36%) minmax(0, 1fr);
+    gap: 6px 10px;
+    align-items: center;
+    padding: 7px 0;
+  }
+
+  .table td + td {
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1.25;
+  }
+
+  .table td.cell-primary {
+    display: block;
+    font-size: 1.08rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    padding: 0 0 10px;
+    margin-bottom: 2px;
+    border-bottom: 1px solid #eef2f7;
+  }
+
+  .table td.cell-primary + td {
+    border-top: none;
+  }
+
+  .table td.cell-primary::before {
+    display: none;
+  }
+
+  .table td:last-child {
+    display: block;
+    white-space: normal;
+    vertical-align: top;
+    padding-top: 10px;
+    margin-top: 2px;
+    border-top: 1px solid #eef2f7;
+  }
+
+  .table td:last-child::before {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* Geen "Actie"-label boven knoppen of "Geteld"; wel label bij cijfer-resultaten */
+  .table td:last-child:has(.btn)::before,
+  .table td:last-child:has(.btn-row)::before,
+  .table td:last-child.geteld::before,
+  .table td:last-child:not([data-label])::before,
+  .table td.cell-primary:last-child::before {
+    display: none;
+  }
+
+  .table td:last-child:has(.btn),
+  .table td:last-child:has(.btn-row),
+  .table td:last-child.geteld {
+    border-top: none;
+    padding-top: 8px;
+  }
+
+  /* Belangrijkste getal rechts/prominent (Theoretisch nu, Kopen, …) */
+  .table-theo td:last-child,
+  .table-3col td:last-child {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 36%) minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .table-theo td:last-child::before,
+  .table-3col td:last-child::before {
+    display: block;
+    margin-bottom: 0;
+  }
+
+  .table-theo td:last-child,
+  .table-3col td:last-child {
+    font-size: 1.15rem;
+    font-weight: 750;
+    color: var(--color-primary-dark);
+  }
+
+  /* Lege / statusregels */
+  .table td[colspan] {
+    display: block;
+    text-align: center;
+    color: var(--color-muted);
+    font-weight: 500;
+    padding: 18px 8px;
+    border: none;
+  }
+
+  .table td[colspan]::before {
+    content: none;
+    display: none;
+  }
+
+  .table tbody tr:has(td[colspan]) {
+    background: #f8fafc;
+    box-shadow: none;
   }
 
   .table td input {
     min-width: 0;
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
   }
 
   .input-tellijst-qty {
     max-width: none;
   }
 
-  .menu-button {
-    padding: 16px 18px;
-    min-height: 52px;
+  .input-inline,
+  .input-inline--wide {
+    min-width: 0;
+    width: 100%;
   }
 
-  .nav-footer {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  /* Tellijst: input + knop duidelijk als actieblok */
+  .table-compact td[data-label="Geteld"] {
+    display: block;
+  }
+
+  .table-compact td[data-label="Geteld"]::before {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .table-compact td[data-label="Actie"] .btn,
+  .table-compact td[data-label="Actie"] {
+    width: 100%;
+  }
+
+  .table-compact td.geteld,
+  .table td.geteld {
+    color: #16a34a;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .geteld {
+    font-size: 1.05rem;
   }
 }
 

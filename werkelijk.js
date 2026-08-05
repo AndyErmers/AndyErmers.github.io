@@ -3,6 +3,7 @@ import {
   formatDatum,
   escapeIlikeExact,
   fetchAllRowsMatchingProductIlike,
+  makeTd,
 } from "./realiteit-shared.js";
 
 const tbody = document.getElementById("voorraad-body");
@@ -164,14 +165,14 @@ function renderTellijstFromKeys(productKeys, latestMap) {
 
     const tr = document.createElement("tr");
 
-    const tdP = document.createElement("td");
+    const tdP = makeTd("Product", { primary: true });
     tdP.textContent = productName;
 
-    const tdHuidig = document.createElement("td");
+    const tdHuidig = makeTd("Huidig");
     tdHuidig.textContent = String(huidig);
 
-    const tdGeteld = document.createElement("td");
-    const tdActie = document.createElement("td");
+    const tdGeteld = makeTd("Geteld");
+    const tdActie = makeTd("Actie");
 
     const alreadyCounted = isProductGeteld(productName);
 
@@ -189,6 +190,7 @@ function renderTellijstFromKeys(productKeys, latestMap) {
       tdGeteld.appendChild(input);
 
       const btn = document.createElement("button");
+      btn.type = "button";
       btn.className = "btn btn-primary";
       btn.textContent = "Opslaan";
       tdActie.appendChild(btn);
@@ -245,10 +247,10 @@ function renderVoorraadTabel(latest) {
   for (const item of latest) {
     const tr = document.createElement("tr");
 
-    const tdProduct = document.createElement("td");
-    const tdHoeveelheid = document.createElement("td");
-    const tdDatum = document.createElement("td");
-    const tdActies = document.createElement("td");
+    const tdProduct = makeTd("Product", { primary: true });
+    const tdHoeveelheid = makeTd("Hoeveelheid");
+    const tdDatum = makeTd("Datum");
+    const tdActies = makeTd("Acties");
 
     const oldProduct = item.product ?? "";
     const oldQty =

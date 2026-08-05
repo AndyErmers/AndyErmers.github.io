@@ -3,6 +3,7 @@ import {
   daysBetween,
   fetchAllRealiteitHistory,
   buildConsumptionStats,
+  makeTd,
 } from "./realiteit-shared.js";
 
 const form = document.getElementById("boodschappen-form");
@@ -88,13 +89,13 @@ async function calculateShoppingList(shopDateIso) {
   for (const it of items) {
     const tr = document.createElement("tr");
 
-    const tdP = document.createElement("td");
+    const tdP = makeTd("Product", { primary: true });
     tdP.textContent = it.product;
 
-    const tdV = document.createElement("td");
+    const tdV = makeTd("Verwacht op +7");
     tdV.textContent = String(round0(it.predAtPlus7));
 
-    const tdB = document.createElement("td");
+    const tdB = makeTd("Kopen");
     tdB.textContent = String(it.buy);
 
     tr.appendChild(tdP);
