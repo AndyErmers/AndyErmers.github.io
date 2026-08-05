@@ -80,3 +80,11 @@ export function fromDatetimeLocalValue(s) {
   if (Number.isNaN(t)) return null;
   return new Date(t).toISOString();
 }
+
+/** Tabelcel met data-label voor gestapelde mobiele kaarten. */
+export function makeTd(label, { primary = false } = {}) {
+  const td = document.createElement("td");
+  if (label) td.dataset.label = label;
+  if (primary) td.classList.add("cell-primary");
+  return td;
+}

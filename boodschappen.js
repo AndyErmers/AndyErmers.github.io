@@ -1,4 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+import { makeTd } from "./realiteit-shared.js";
 
 const SUPABASE_URL = "https://lbmtkzxoucwsniznvcjg.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_8gl1rTwsBMqpKPW1TTnUJA_FAOzBlcI";
@@ -192,13 +193,13 @@ async function calculateShoppingList(shopDateIso) {
   for (const it of items) {
     const tr = document.createElement("tr");
 
-    const tdP = document.createElement("td");
+    const tdP = makeTd("Product", { primary: true });
     tdP.textContent = it.product;
 
-    const tdV = document.createElement("td");
+    const tdV = makeTd("Verwacht op +7");
     tdV.textContent = String(round0(it.predAtPlus7));
 
-    const tdB = document.createElement("td");
+    const tdB = makeTd("Kopen");
     tdB.textContent = String(it.buy);
 
     tr.appendChild(tdP);

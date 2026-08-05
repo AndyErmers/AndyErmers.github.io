@@ -1,4 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+import { makeTd } from "./realiteit-shared.js";
 
 const SUPABASE_URL = "https://lbmtkzxoucwsniznvcjg.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_8gl1rTwsBMqpKPW1TTnUJA_FAOzBlcI";
@@ -177,19 +178,19 @@ async function loadTheoretisch() {
 
     const tr = document.createElement("tr");
 
-    const tdP = document.createElement("td");
+    const tdP = makeTd("Product", { primary: true });
     tdP.textContent = s.productName;
 
-    const tdL = document.createElement("td");
+    const tdL = makeTd("Laatste stand");
     tdL.textContent = String(round2(s.latestQty));
 
-    const tdC = document.createElement("td");
+    const tdC = makeTd("Verbruik/dag");
     tdC.textContent = String(round2(s.consumptionPerDay));
 
-    const tdD = document.createElement("td");
+    const tdD = makeTd("Dagen");
     tdD.textContent = String(round2(days));
 
-    const tdT = document.createElement("td");
+    const tdT = makeTd("Theoretisch nu");
     tdT.textContent = String(theoInt);
 
     tr.appendChild(tdP);

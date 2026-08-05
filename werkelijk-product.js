@@ -4,6 +4,7 @@ import {
   fetchFullRowsForProduct,
   toDatetimeLocalValue,
   fromDatetimeLocalValue,
+  makeTd,
 } from "./realiteit-shared.js";
 
 const titleEl = document.getElementById("product-page-title");
@@ -30,10 +31,10 @@ function renderRow(row, reload) {
       : Number(row.Hoeveelheid ?? 0);
   const datum0 = row.Datum ?? "";
 
-  const tdDatum = document.createElement("td");
-  const tdProduct = document.createElement("td");
-  const tdQty = document.createElement("td");
-  const tdActies = document.createElement("td");
+  const tdDatum = makeTd("Datum", { primary: true });
+  const tdProduct = makeTd("Product");
+  const tdQty = makeTd("Hoeveelheid");
+  const tdActies = makeTd("Acties");
 
   tdDatum.textContent = formatDatum(datum0);
   tdProduct.textContent = product0;
@@ -83,8 +84,11 @@ function renderRow(row, reload) {
     btnCancel.type = "button";
     btnCancel.textContent = "Annuleer";
 
-    tdActies.appendChild(btnSave);
-    tdActies.appendChild(btnCancel);
+    const actiesWrap = document.createElement("div");
+    actiesWrap.className = "btn-row";
+    actiesWrap.appendChild(btnSave);
+    actiesWrap.appendChild(btnCancel);
+    tdActies.appendChild(actiesWrap);
 
     btnCancel.addEventListener("click", () => {
       tdDatum.textContent = formatDatum(datum0);
