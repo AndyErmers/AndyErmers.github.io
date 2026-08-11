@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>Houdbaarheid</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1 class="page-title">Houdbaarheid</h1>
+
+    <section class="card card--tight">
+      <p class="muted muted--tight">
+        Voeg producten met THT toe. Halverwege de houdbaarheid verschijnen ze bij
+        <strong>Bijna</strong>; na de THT bij <strong>Verlopen</strong>.
+      </p>
+
+      <form id="tht-form" class="form">
+        <input
+          type="text"
+          id="tht-product"
+          placeholder="Product"
+          required
+          autocomplete="off"
+        />
+        <input
+          type="date"
+          id="tht-datum"
+          required
+          aria-label="THT-datum"
+        />
+        <button type="submit" class="btn btn-primary">Toevoegen</button>
+      </form>
+      <p id="tht-form-status" class="muted muted--tight" aria-live="polite"></p>
+    </section>
+
+    <section class="card card--tight tht-section tht-section--expired">
+      <h2>Verlopen <span id="tht-count-expired" class="tht-count">0</span></h2>
+      <p class="muted muted--tight">THT voorbij — weggooien als je het nog hebt.</p>
+      <div class="table-wrapper">
+        <table class="table table-tht">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>THT</th>
+              <th>Ingevoerd</th>
+              <th>Actie</th>
+            </tr>
+          </thead>
+          <tbody id="tht-body-expired">
+            <tr><td colspan="4">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card card--tight tht-section tht-section--warn">
+      <h2>Bijna <span id="tht-count-warn" class="tht-count">0</span></h2>
+      <p class="muted muted--tight">Halverwege tot de THT — graag eerst gebruiken.</p>
+      <div class="table-wrapper">
+        <table class="table table-tht">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>THT</th>
+              <th>Ingevoerd</th>
+              <th>Actie</th>
+            </tr>
+          </thead>
+          <tbody id="tht-body-warn">
+            <tr><td colspan="4">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card card--tight tht-section tht-section--ok">
+      <h2>Nog goed <span id="tht-count-ok" class="tht-count">0</span></h2>
+      <div class="table-wrapper">
+        <table class="table table-tht">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>THT</th>
+              <th>Ingevoerd</th>
+              <th>Actie</th>
+            </tr>
+          </thead>
+          <tbody id="tht-body-ok">
+            <tr><td colspan="4">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <nav class="nav-footer">
+      <a class="nav-footer__link" href="index.html">← Home</a>
+    </nav>
+  </main>
+
+  <script type="module" src="houdbaarheid.js"></script>
+</body>
+</html>
