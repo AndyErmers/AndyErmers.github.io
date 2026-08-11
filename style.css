@@ -1076,3 +1076,102 @@ section.card + h2 {
     text-align: center;
   }
 }
+
+/* =========================
+   HOUDBAARHEID / THT
+   ========================= */
+.tht-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.tht-section--expired {
+  border-left-color: #dc2626;
+}
+
+.tht-section--expired .tht-count {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.tht-section--warn {
+  border-left-color: #d97706;
+}
+
+.tht-section--warn .tht-count {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.tht-section--ok {
+  border-left-color: #16a34a;
+}
+
+.tht-section--ok .tht-count {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.table-tht {
+  table-layout: auto;
+}
+
+@media (max-width: 720px) {
+  #tht-form.form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .table-tht tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    align-items: baseline;
+    padding: 8px 10px;
+  }
+
+  .table-tht td.cell-primary {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-tht td[data-label="THT"] {
+    grid-column: 2;
+    grid-row: 1;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .table-tht td[data-label="Ingevoerd"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  .table-tht td[data-label="Ingevoerd"]::before {
+    content: "ingevoerd ";
+    font-weight: 600;
+  }
+
+  .table-tht td[data-label="Actie"] {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    padding-top: 4px;
+  }
+
+  .table-tht td[data-label="Actie"] .btn {
+    width: 100%;
+  }
+}
